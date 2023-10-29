@@ -21,4 +21,3 @@ Achteraf: Plaats een kopie van de retro in je eigen repository.
  - Voortaan gaan wij de opdrachten vanf het begin documenteren
  - Beter tijd indelen voor de opdrachten
  - Een ICT naam voor de groep
-
