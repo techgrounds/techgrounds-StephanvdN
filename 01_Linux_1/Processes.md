@@ -27,6 +27,8 @@
 
 ### Ervaren problemen
 
+De VM stopte ermee en ik had geen toegang meer
+
 
 ---
 

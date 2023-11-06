@@ -26,7 +26,7 @@
 ----
 
 
-## Bronnen
+### Bronnen
 [Elated.com](https://www.elated.com/understanding-permissions/)
 ![Afbeelding1](Permission-strings.png)
 
@@ -42,13 +42,13 @@
 
 ---
 
-## ervaren problemen
+### Ervaren problemen
 
-geen problemen ervaren bij dit onderdeel
+Er zijn geen problemen geweest bij dit onderdeel
 
 ----
 
-## resultaat
+### Resultaat
 
 Het aanmaken van een text file
  ![afbeeldingTextFile](CreateTextFileP.png)
