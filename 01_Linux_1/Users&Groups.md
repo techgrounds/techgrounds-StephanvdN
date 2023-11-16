@@ -34,7 +34,7 @@ De user carlos heeft ook een wachtwoord
 ![afbeelding1.2](/01_Linux_1/NewUserPassword.png)
 De user carlos kan nu ook de sudo command gebruiken
   ![afbeelding1.3](/01_Linux_1/NewUserUseSudo.png)
-De suer carlos is te vinden in de bestanden waar de gebruikers, wachtwoorden en groepen worden opgeslagen
+De user carlos is te vinden in de bestanden waar de gebruikers, wachtwoorden en groepen worden opgeslagen
    ![afbeelding2](LocationFilesUserData.png)
 
 

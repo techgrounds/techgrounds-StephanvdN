@@ -18,6 +18,13 @@
 
 [NetworkChuck](https://www.youtube.com/watch?v=OD2vG5st4zI)
 
+[SunnyClassroom](https://www.youtube.com/watch?v=ecCuyq-Wprc)
+
+![afbeeldingSubnetTabel](../00_includes/02_Cloud_1/06_Subnetting/Subnet%20Table.webp)
+
+![AfbeeldingSubnetTabel1](../00_includes/02_Cloud_1/06_Subnetting/subnet%20table%201.webp)
+
+
 
 ---
 
@@ -30,6 +37,6 @@ Er zijn geen problemen geweest bij dit onderdeel.
 
 Voor de opdracht moesten er 3 subnets worden aangemaakt. In mijn bron werd verteld dat je het best kan beginnen met de grootste groep en dat was groep met internettoegang dat moest bestaan uit 30 Hosts + router. De volgende groep was de LAN groep dat moest bestaan uit minimaal 15 Hosts. En de Gateway moest bestaan uit 5 Hosts + de internet Gatway.
 
-Ik heb voor de Groep met internettoegang ruimte gereserveerd met 32 plekken omdat we er 31 nodig hebben. Voor de LAN groep heb ik 16 plekken gereserveer omdat we er 15 nodig hebben. Voor de Gateway hebben we 8 plekken gereserveerd omdat we er maar 6 nodig hebben
+Met het tabel uit de bron zien we hoe we te werk moeten gaan. In de tabel zie je 1, 2, 4, 8, 16 en enz. subnets staan. Aangezien wij er 3 willen moeten we voor 4 kiezen. als we voor 4 subnets hebben gekozen heeft elke subnet ruimte voor 64 hosts en subnet mask van
 
-![afbeeldingSubnetting](../00_includes/02_Cloud_1/06_Subnetting/SubnettingOpdracht1.png)
+![afbeeldingSubnetting](../00_includes/02_Cloud_1/06_Subnetting/Subnet%20Opdracht%20Sunny.png)

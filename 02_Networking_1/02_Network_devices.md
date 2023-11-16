@@ -31,6 +31,8 @@
 
 ### Ervaren Problemen
 
+Ik kon niet inloggen in mijn router, ook niet nadat ik de router had gereset. Het probleem lag mogelijk aan Google Chrome aangezien ik wel op mijn mobiel kon inloggen en dat het wel mogelijk was met de browser Safari.
+
 ---
 ### Resultaat
 
