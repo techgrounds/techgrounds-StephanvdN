@@ -4,10 +4,14 @@
 - Regions
 - Availability Zones
 - Region pairs
-- 
+  
 ---
 ## Opdrachten
->tekst
+>Bestudeer de volgende begrippen:
+> - Wat is een Azure Region.
+> - Wat is een Azure Availability Zone.
+> - Wat is een Azure Region Pair.
+
 ---
 
 ### Bronnen
@@ -24,6 +28,8 @@
 ---
 
 ### Ervaren Problemen
+
+Er zijn geen problemen geweest bij dit onderdeel.
 
 ---
 ### Resultaat
@@ -75,3 +81,4 @@
     - Asia Pacific,
     - Middle East and Africa
 - Each region belongs only to one Geography
+

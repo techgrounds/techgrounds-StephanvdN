@@ -8,9 +8,11 @@
 
 ---
 ## Opdrachten
->Bij de opdracht moet worden uitgezocht waarom de voorkeur uitgaat naar Hashing boven symmetric encryption voor het opslaan van wachtwoorden
+>Bij de opdracht moet worden uitgezocht waarom de voorkeur uitgaat naar Hashing boven symmetric encryption voor het opslaan van wachtwoorden.
 >
->Er moet worden uitgezocht hoe de Rainbow Table gebruikt kan worden om wachtwoorden te kraken
+>Er moet worden uitgezocht hoe de Rainbow Table gebruikt kan worden om wachtwoorden te kraken en 2 hashes door de Rainbow Table halen.
+>
+>Er moet ook een nieuw user worden aangemaakt in Linux met hetzelde wachtwoord dat mijn klasgenoten hebben. De wachtwoord Hashes moet worden vergeleken met die van mijn klasgenoten.
 ---
 
 

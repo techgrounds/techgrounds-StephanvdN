@@ -23,9 +23,12 @@
 ![AzureServiceModel](../00_includes/04_Azure_1/09_Shared_Responsibility_Model/AzureServiceModelResponsobilities.png)
 
 ![Responsibilitymatrix](../00_includes/04_Azure_1/09_Shared_Responsibility_Model/ResponsibilityMatrix.png)
+
 ---
 
 ### Ervaren Problemen
+
+Er zijn geen problemen geweest bij dit onderdeel.
 
 ---
 ### Resultaat
