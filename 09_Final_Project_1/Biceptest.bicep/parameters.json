@@ -1,0 +1,15 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_app_prd_vnet_name": {
+            "value": null
+        },
+        "networkSecurityGroups_application_subnet_nsg_externalid": {
+            "value": null
+        },
+        "virtualNetworks_managment_prd_vnet_externalid": {
+            "value": null
+        }
+    }
+}
