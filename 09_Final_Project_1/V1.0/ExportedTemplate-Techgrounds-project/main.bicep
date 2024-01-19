@@ -9,8 +9,14 @@ module networkModule 'network.bicep' = {
     virtualNetworkManagement: 'managementVnet'
     nsgAppSubnet: 'NsgApp'
     nsgManagementSubnet: 'NsgManagement'
+    Vnet1Peering: 'peering1'
+    Vnet2Peering: 'peering2'
 
   }
 }
 
+/*
+@description('Deploy Webserver')
+module webserverModule 
+*/
 // output vnetapp string = networkModule.outputs.vnetAppOutput

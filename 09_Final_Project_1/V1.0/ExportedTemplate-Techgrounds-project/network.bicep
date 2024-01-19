@@ -3,8 +3,8 @@ param virtualNetworkApp string
 param virtualNetworkManagement string
 param nsgAppSubnet string
 param nsgManagementSubnet string
-param Vnet1PeeringAppManag string
-param Vnet2PeeringManagApp string
+param Vnet1Peering string
+param Vnet2Peering string
 
 var vnetappconfig = {
   addressPrefixes: '10.20.20.0/24'
@@ -17,17 +17,6 @@ var vnetmanagementconfig = {
   addresPrefixes: '10.10.10.0/24'
   subnetName: 'ManagementSubnet'
   subnetPrefixes: '10.10.10.0/24'
-}
-
-var vnetPeeringManagApp = {
-  remoteAddressSpaceAddressPrefixes: '10.10.10.0/24'
-  remoteVirtualNetworkAddressSpaceAddressPrefixes: '10.10.10.0/24'
-}
-
-var vnetPeeringAppManag = {
-  remoteAddressSpaceAddressPrefixes: '10.20.20.0/24'
-  remoteVirtualNetworkAddressSpaceAddressPrefixes: '10.20.20.0/24'
-
 }
 
 resource networkSecurityGroupAppSubnet 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
@@ -96,11 +85,10 @@ resource vnetManagement 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   }
 }
 
-resource VnetPeeringAppManag 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2022-01-01' = {
-  name: Vnet1PeeringAppManag
+resource VnetPeering1 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2022-01-01' = {
+  parent: vnetApp
+  name: Vnet1Peering
   properties: {
-    peeringState: 'Connected'
-    peeringSyncLevel: 'FullyInSync'
     remoteVirtualNetwork: {
       id: vnetManagement.id
     }
@@ -108,31 +96,13 @@ resource VnetPeeringAppManag 'Microsoft.Network/virtualNetworks/virtualNetworkPe
     allowForwardedTraffic: true
     allowGatewayTransit: false
     useRemoteGateways: false
-    doNotVerifyRemoteGateways: false
-    remoteAddressSpace: {
-      addressPrefixes: [
-        vnetPeeringManagApp.remoteAddressSpaceAddressPrefixes
-        // '10.10.10.0/24'
-      ]
-    }
-    remoteVirtualNetworkAddressSpace: {
-      addressPrefixes: [
-        vnetPeeringManagApp.remoteVirtualNetworkAddressSpaceAddressPrefixes
-        // '10.10.10.0/24'
-      ]
-    }
-
   }
-  dependsOn: [
-    vnetApp
-  ]
 }
 
-resource VnetPeeringManagApp 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2022-01-01' = {
-  name: Vnet2PeeringManagApp
+resource VnetPeering2 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2022-01-01' = {
+  parent: vnetManagement
+  name: Vnet2Peering
   properties: {
-    peeringState: 'Connected'
-    peeringSyncLevel: 'FullyInSync'
     remoteVirtualNetwork: {
       id: vnetApp.id
     }
@@ -140,25 +110,8 @@ resource VnetPeeringManagApp 'Microsoft.Network/virtualNetworks/virtualNetworkPe
     allowForwardedTraffic: true
     allowGatewayTransit: false
     useRemoteGateways: false
-    doNotVerifyRemoteGateways: false
-    remoteAddressSpace: {
-      addressPrefixes: [
-        vnetPeeringAppManag.remoteAddressSpaceAddressPrefixes
 
-        // '10.20.20.0/24'
-      ]
-    }
-    remoteVirtualNetworkAddressSpace: {
-      addressPrefixes: [
-
-        vnetPeeringAppManag.remoteVirtualNetworkAddressSpaceAddressPrefixes
-        // '10.20.20.0/24'
-      ]
-    }
   }
-  dependsOn: [
-    vnetManagement
-  ]
 }
 
 // output vnetAppOutput string = virtualNetworkApp
