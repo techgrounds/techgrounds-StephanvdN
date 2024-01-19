@@ -1,6 +1,5 @@
-
-param location string 
-param AppServiceAppName string
+param location string
+param appServiceAppName string
 
 @allowed([
   'nonprod'
@@ -11,7 +10,6 @@ param enviromentType string
 var appServicePlanName = 'toy-product-launch-plan'
 var appServicePlanSkuName = (enviromentType == 'prod') ? 'P2v3' : 'F1'
 
-
 resource AppServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName
   location: location
@@ -20,8 +18,8 @@ resource AppServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
-resource AppServiceApp 'Microsoft.Web/sites@2022-03-01' = {
-  name: AppServiceAppName
+resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: appServiceAppName
   location: location
   properties: {
     serverFarmId: AppServicePlan.id
@@ -30,6 +28,4 @@ resource AppServiceApp 'Microsoft.Web/sites@2022-03-01' = {
 
 }
 
-
-output AppServiceAppHostName string = AppServiceApp.properties.defaultHostName
-
+output appServiceAppHostName string = appServiceApp.properties.defaultHostName

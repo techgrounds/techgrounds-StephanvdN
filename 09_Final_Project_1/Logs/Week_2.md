@@ -49,6 +49,7 @@ Vandaag ga ik beginnen met het IaC van het netwerk
 ---
 # Log [18-01-2024]
 
+ik had de code gedeployed maar het peering onderdeel werkt niet
 
 ## Dagverslag (1 zin)
 
@@ -65,7 +66,7 @@ Vandaag ga ik beginnen met het IaC van het netwerk
 ---
 # Log [19-01-2024]
 
-
+uitzoeken waarom peering niet werkt
 ## Dagverslag (1 zin)
 
 

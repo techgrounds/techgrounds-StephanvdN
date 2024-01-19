@@ -1,6 +1,6 @@
 param location string = resourceGroup().location
 param storageAccountName string = 'toylaunch${uniqueString(resourceGroup().id)}'
-param AppServiceAppName string = 'toylaunch${uniqueString(resourceGroup().id)}'
+param appServiceAppName string = 'toylaunch${uniqueString(resourceGroup().id)}'
 
 @allowed([
   'nonprod'
@@ -25,10 +25,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 module app 'appService.bicep' = {
   name: 'app'
   params: {
-    AppServiceAppName: AppServiceAppName
+    appServiceAppName: appServiceAppName
     enviromentType: enviromentType
     location: location
   }
 }
 
-output AppServiceAppHostName string = AppServiceApp.properties.defaultHostName
+output AppServiceAppHostName string = app.outputs.appServiceAppHostName

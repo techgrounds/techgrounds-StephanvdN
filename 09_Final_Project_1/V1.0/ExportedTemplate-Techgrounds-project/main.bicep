@@ -1,14 +1,16 @@
-param virtualNetworkApp string
-param virtualNetworkManagement string
-
 param location string = resourceGroup().location
 
+@description('Deploy Network')
 module networkModule 'network.bicep' = {
   name: 'networkDeployment'
   params: {
     location: location
-    virtualNetworkApp: virtualNetworkApp
-    virtualNetworkManagement: virtualNetworkManagement
+    virtualNetworkApp: 'appvNet'
+    virtualNetworkManagement: 'managementVnet'
+    nsgAppSubnet: 'NsgApp'
+    nsgManagementSubnet: 'NsgManagement'
 
   }
 }
+
+// output vnetapp string = networkModule.outputs.vnetAppOutput
