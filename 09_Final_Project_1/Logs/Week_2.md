@@ -33,6 +33,7 @@ Vandaag ga ik beginnen met het IaC van het netwerk
 ---
 # Log [17-01-2024]
 
+bezig geweest met IaC van het netwerk
 
 ## Dagverslag (1 zin)
 
@@ -49,7 +50,7 @@ Vandaag ga ik beginnen met het IaC van het netwerk
 ---
 # Log [18-01-2024]
 
-ik had de code gedeployed maar het peering onderdeel werkt niet
+ik had de IaC van het netwerk gedeployed maar het peering onderdeel werkt niet
 
 ## Dagverslag (1 zin)
 
@@ -66,7 +67,7 @@ ik had de code gedeployed maar het peering onderdeel werkt niet
 ---
 # Log [19-01-2024]
 
-uitzoeken waarom peering niet werkt
+uitzoeken waarom peering niet werkt, IaC van het netwerk deployen is gelukt. Nu werken aan het IaC van de webserver.
 ## Dagverslag (1 zin)
 
 

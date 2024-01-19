@@ -15,8 +15,16 @@ module networkModule 'network.bicep' = {
   }
 }
 
-/*
 @description('Deploy Webserver')
-module webserverModule 
-*/
+module webserverModule 'webserver.bicep' = {
+  name: 'webserverDeployment'
+  params: {
+    location: location
+    VmWebserver: 'Vm-webserver'
+    adminUsername: 'azureuser-techgroundsproject'
+    NetworkInterface: 'NetworkInterface'
+  }
+
+}
+
 // output vnetapp string = networkModule.outputs.vnetAppOutput
