@@ -1,4 +1,4 @@
-param location string = resourceGroup().location
+param location string
 param VmWebserver string
 param adminUsername string
 param NetworkInterfaceWeb string
@@ -85,7 +85,7 @@ resource networkInterfaceWebServer 'Microsoft.Network/networkInterfaces@2022-01-
     ipConfigurations: [
       {
         name: NetworkInterfaceConfig.name
-        id: '${NetworkInterfaceWeb}/ipConfigurations/ipconfig1'
+        id: NetworkInterfaceWeb
         type: NetworkInterfaceConfig.type
         properties: {
           privateIPAllocationMethod: NetworkInterfaceConfig.properties.privateIPAllocationMethod

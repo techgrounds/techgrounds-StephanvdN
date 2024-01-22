@@ -1,5 +1,9 @@
 param location string = resourceGroup().location
 
+@description('Password Managementserver')
+@secure()
+param PasswordManagement string = 'P5lyU+e$$4cuPEv_s8ip'
+
 @description('Deploy Network')
 module networkModule 'network.bicep' = {
   name: 'networkDeployment'
@@ -27,6 +31,20 @@ module webserverModule 'webserver.bicep' = {
     publicIPWebServerName: 'PublicIPWebserver'
   }
 
+}
+
+@description('Deploy Managementserver')
+module managementseverModule 'managementserver.bicep' = {
+  name: 'managementserverDeployment'
+  params: {
+    location: location
+    VmManagementserver: 'Vm-manageserver'
+    adminUsername: 'Techgrounds'
+    NetworkInterfaceManagement: 'NetworkInterfaceManagementServer'
+    adminPassword: PasswordManagement
+    publicIPAddressManagementServerName: 'PublicIPManagementServer'
+    subnetManagement: networkModule.outputs.subnetVnetManag
+  }
 }
 
 // output vnetapp string = networkModule.outputs.vnetAppOutput
