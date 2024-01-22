@@ -33,20 +33,44 @@ var linuxConfig = {
   keyData: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC9tgl27jmiprWvxTKmatb846TAnFilwJM+Q3C3ysidnabj4qRYYtx56zHUQbxUl9WVbfYa8MjJ5lqwgNBFPIrHPIhUauRR7f7g0rHVx39k/XiM0De9B5Ur4f9YIb0W1l1r4dWXjCpfzB/9gNxkTQ3C+G+y4L/aJ+TU/2xUtrt0s+29DgHQ15rJJ7iUA7repe4/OTNh1b/Vgp7HWwtTmH/EuqwOpxUVkMZPM0Jp20N3aVPlVP2czT22h/XT1dQtpHpfrRwrAM8ZzLf8yNCOIr2J8K6gv8ysJzIYfNALJcljaCjBOFmVTziuKW1KA/GspOslg7kPBxwLb+kmNUZNs+nQgO6wbcbJYvdZqXJOEW5192s0+WBQ84x7kum4cboJ6aWvjcfOCi+VWTOAaLXABTSPE41CvMDUp5OHCq+YU7HXRIubZm5yySrZr8T0TBWfDMFOadaUkyDWhD/2vjjVXvkcPUXrmbhzg4q2ov8NqSaUZBVmj2yQT9aa09qxs9mOjHE= generated-by-azure'
 }
 
+var IPAddressConfig = {
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'
+  }
+  properties: {
+    publicIPAddressVersion: 'IPv4'
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+  }
+}
+
+var NetworkInterfaceConfig = {
+  name: 'ipconfig'
+  type: 'Microsoft.Network/networkInterfaces/ipConfigurations'
+  properties: {
+    privateIPAllocationMethod: 'Dynamic'
+    primary: true
+    privateIPAddressVersion: 'IPv4'
+
+  }
+
+}
+
 resource publicIpAddressWebServer 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   name: publicIPWebServerName
   location: location
   sku: {
-    name: 'Standard'
-    tier: 'Regional'
+    name: IPAddressConfig.sku.name
+    tier: IPAddressConfig.sku.tier
   }
   zones: [
     VmWebserverZone.zone
   ]
   properties: {
-    publicIPAddressVersion: 'IPv4'
-    publicIPAllocationMethod: 'Static'
-    idleTimeoutInMinutes: 4
+    publicIPAddressVersion: IPAddressConfig.properties.publicIPAddressVersion
+    publicIPAllocationMethod: IPAddressConfig.properties.publicIPAllocationMethod
+    idleTimeoutInMinutes: IPAddressConfig.properties.idleTimeoutInMinutes
     dnsSettings: {
       domainNameLabel: dnsLabelPrefix
     }
@@ -60,11 +84,11 @@ resource networkInterfaceWebServer 'Microsoft.Network/networkInterfaces@2022-01-
   properties: {
     ipConfigurations: [
       {
-        name: 'ipconfig'
+        name: NetworkInterfaceConfig.name
         id: '${NetworkInterfaceWeb}/ipConfigurations/ipconfig1'
-        type: 'Microsoft.Network/networkInterfaces/ipConfigurations'
+        type: NetworkInterfaceConfig.type
         properties: {
-          privateIPAllocationMethod: 'Dynamic'
+          privateIPAllocationMethod: NetworkInterfaceConfig.properties.privateIPAllocationMethod
           publicIPAddress: {
             id: publicIpAddressWebServer.id
             properties: {
@@ -74,8 +98,8 @@ resource networkInterfaceWebServer 'Microsoft.Network/networkInterfaces@2022-01-
           subnet: {
             id: subnetApp
           }
-          primary: true
-          privateIPAddressVersion: 'IPv4'
+          primary: NetworkInterfaceConfig.properties.primary
+          privateIPAddressVersion: NetworkInterfaceConfig.properties.privateIPAddressVersion
         }
       }
     ]
