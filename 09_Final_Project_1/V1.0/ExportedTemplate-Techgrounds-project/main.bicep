@@ -22,7 +22,9 @@ module webserverModule 'webserver.bicep' = {
     location: location
     VmWebserver: 'Vm-webserver'
     adminUsername: 'azureuser-techgroundsproject'
-    NetworkInterface: 'NetworkInterface'
+    NetworkInterfaceWeb: 'NetworkInterfaceWebServer'
+    subnetApp: networkModule.outputs.subnetVnetApp
+    publicIPWebServerName: 'PublicIPWebserver'
   }
 
 }

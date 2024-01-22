@@ -114,4 +114,5 @@ resource VnetPeering2 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@
   }
 }
 
-// output vnetAppOutput string = virtualNetworkApp
+output subnetVnetApp string = vnetApp.properties.subnets[0].id
+output subnetVnetManag string = vnetManagement.properties.subnets[0].id

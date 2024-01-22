@@ -1,7 +1,10 @@
 param location string = resourceGroup().location
 param VmWebserver string
 param adminUsername string
-param NetworkInterface string
+param NetworkInterfaceWeb string
+param subnetApp string
+param publicIPWebServerName string
+param dnsLabelPrefix string = toLower('${VmWebserver}-${uniqueString(resourceGroup().id)}')
 
 var VmWebserverZone = {
   zone: '2'
@@ -30,6 +33,56 @@ var linuxConfig = {
   keyData: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC9tgl27jmiprWvxTKmatb846TAnFilwJM+Q3C3ysidnabj4qRYYtx56zHUQbxUl9WVbfYa8MjJ5lqwgNBFPIrHPIhUauRR7f7g0rHVx39k/XiM0De9B5Ur4f9YIb0W1l1r4dWXjCpfzB/9gNxkTQ3C+G+y4L/aJ+TU/2xUtrt0s+29DgHQ15rJJ7iUA7repe4/OTNh1b/Vgp7HWwtTmH/EuqwOpxUVkMZPM0Jp20N3aVPlVP2czT22h/XT1dQtpHpfrRwrAM8ZzLf8yNCOIr2J8K6gv8ysJzIYfNALJcljaCjBOFmVTziuKW1KA/GspOslg7kPBxwLb+kmNUZNs+nQgO6wbcbJYvdZqXJOEW5192s0+WBQ84x7kum4cboJ6aWvjcfOCi+VWTOAaLXABTSPE41CvMDUp5OHCq+YU7HXRIubZm5yySrZr8T0TBWfDMFOadaUkyDWhD/2vjjVXvkcPUXrmbhzg4q2ov8NqSaUZBVmj2yQT9aa09qxs9mOjHE= generated-by-azure'
 }
 
+resource publicIpAddressWebServer 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
+  name: publicIPWebServerName
+  location: location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'
+  }
+  zones: [
+    VmWebserverZone.zone
+  ]
+  properties: {
+    publicIPAddressVersion: 'IPv4'
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+    dnsSettings: {
+      domainNameLabel: dnsLabelPrefix
+    }
+  }
+
+}
+
+resource networkInterfaceWebServer 'Microsoft.Network/networkInterfaces@2022-01-01' = {
+  name: NetworkInterfaceWeb
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig'
+        id: '${NetworkInterfaceWeb}/ipConfigurations/ipconfig1'
+        type: 'Microsoft.Network/networkInterfaces/ipConfigurations'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          publicIPAddress: {
+            id: publicIpAddressWebServer.id
+            properties: {
+              deleteOption: 'Delete'
+            }
+          }
+          subnet: {
+            id: subnetApp
+          }
+          primary: true
+          privateIPAddressVersion: 'IPv4'
+        }
+      }
+    ]
+
+  }
+}
+
 resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: VmWebserver
   location: location
@@ -52,9 +105,7 @@ resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' 
         osType: OsDiskVMWebserver.osType
         createOption: OsDiskVMWebserver.createOption
         caching: OsDiskVMWebserver.caching
-        managedDisk: {
-          id: resourceId('Microsoft.Compute/disks', '${VmWebserver}')
-        }
+
         deleteOption: OsDiskVMWebserver.deleteOption
       }
       dataDisks: []
@@ -85,8 +136,4 @@ resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' 
       ]
     }
   }
-}
-
-resource networkInterfaceWebServer 'Microsoft.Network/networkInterfaces@2022-01-01' = {
-  name: NetworkInterface
 }
