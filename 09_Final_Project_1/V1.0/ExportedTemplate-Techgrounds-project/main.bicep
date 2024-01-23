@@ -47,4 +47,14 @@ module managementseverModule 'managementserver.bicep' = {
   }
 }
 
+@description('Deploy Storage')
+module storageModule 'storage.bicep' = {
+  name: 'StorageDeployment'
+  params: {
+    location: location
+    storageAccountName: 'storagetechgrounds'
+    subnetID: networkModule.outputs.subnetVnetManag
+  }
+}
+
 // output vnetapp string = networkModule.outputs.vnetAppOutput

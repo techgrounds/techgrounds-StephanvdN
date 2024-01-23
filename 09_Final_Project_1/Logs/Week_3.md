@@ -1,4 +1,4 @@
-# Log [datum]
+# Log [22-01-2024]
 
 
 ## Dagverslag (1 zin)
@@ -19,10 +19,12 @@ Morgen ga ik aan Casper vragen of het wachtwoord in de key vault moet
 
 
 ---
-# Log [datum]
+# Log [23-01-2024]
 
 
 ## Dagverslag (1 zin)
+
+vandaag begin ik aan de storage onderdeel
 
 
 ## Obstakels
