@@ -1,6 +1,5 @@
 param location string
 param storageAccountName string
-param subnetID string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: storageAccountName
@@ -10,30 +9,25 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   }
   kind: 'StorageV2'
   properties: {
+
     dnsEndpointType: 'Standard'
     allowedCopyScope: 'PrivateLink'
     defaultToOAuthAuthentication: false
     publicNetworkAccess: 'Enabled'
     allowCrossTenantReplication: false
     minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: false
+    allowBlobPublicAccess: true
     allowSharedKeyAccess: true
-    /*
+
     networkAcls: {
       bypass: 'AzureServices'
-      virtualNetworkRules: [ {
-          id: subnetID
-          action: 'Allow'
-          state: 'Succeeded'
-        }
-      ]
-
-      defaultAction: 'Deny'
+      virtualNetworkRules: []
+      ipRules: []
+      defaultAction: 'Allow'
     }
-    */
     supportsHttpsTrafficOnly: true
     encryption: {
-      requireInfrastructureEncryption: true
+
       services: {
         file: {
           keyType: 'Account'
@@ -49,4 +43,19 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
     }
     accessTier: 'Hot'
   }
+}
+
+resource blobStorageAccount 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
+  parent: storageAccount
+  name: 'default'
+  properties: {
+
+  }
+}
+
+resource blobStorageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+  parent: blobStorageAccount
+  name: 'default'
+  properties: {}
+
 }
