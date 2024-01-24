@@ -19,7 +19,6 @@ module networkModule 'network.bicep' = {
   }
 }
 
-/*
 @description('Deploy Webserver')
 module webserverModule 'webserver.bicep' = {
   name: 'webserverDeployment'
@@ -47,8 +46,6 @@ module managementseverModule 'managementserver.bicep' = {
     subnetManagement: networkModule.outputs.subnetVnetManag
   }
 }
-
-*/
 
 @description('Deploy Storage')
 module storageModule 'storage.bicep' = {

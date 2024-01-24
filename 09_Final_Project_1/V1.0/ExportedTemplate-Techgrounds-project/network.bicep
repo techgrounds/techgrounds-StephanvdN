@@ -19,11 +19,100 @@ var vnetmanagementconfig = {
   subnetPrefixes: '10.10.10.0/24'
 }
 
+var NSGAppSSH = {
+  name: 'SSHInbound'
+  properties: {
+    direction: 'Inbound'
+    access: 'Allow'
+    protocol: 'Tcp'
+    sourcePortRange: '*'
+    destinationPortRange: '22'
+    sourceAddressPrefix: '*'
+    destinationAddressPrefix: '*'
+    priority: 100
+  }
+}
+
+var NSGAppHTTP = {
+  name: 'HTTPInbound'
+  properties: {
+    direction: 'Inbound'
+    access: 'Allow'
+    protocol: 'Tcp'
+    sourcePortRange: '*'
+    destinationPortRange: '80'
+    sourceAddressPrefix: '*'
+    destinationAddressPrefix: '*'
+    priority: 110
+
+  }
+}
+
+var NSGManagRDP = {
+  name: 'RDPInbound'
+  properties: {
+    direction: 'Inbound'
+    access: 'Allow'
+    protocol: 'Tcp'
+    sourcePortRange: '*'
+    destinationPortRange: '3389'
+    sourceAddressPrefix: '*'
+    destinationAddressPrefix: '*'
+    priority: 100
+
+  }
+}
+
+var NSGManagSSH = {
+  name: 'SSHInbound'
+  properties: {
+    direction: 'Inbound'
+    access: 'Allow'
+    protocol: 'Tcp'
+    sourcePortRange: '*'
+    destinationPortRange: '22'
+    sourceAddressPrefix: '*'
+    destinationAddressPrefix: '*'
+    priority: 110
+
+  }
+}
+
 resource networkSecurityGroupAppSubnet 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
   name: nsgAppSubnet
   location: location
   properties: {
-    securityRules: []
+    securityRules: [
+      {
+        name: NSGAppSSH.name
+        properties: {
+          direction: NSGAppSSH.properties.direction
+          access: NSGAppSSH.properties.access
+          protocol: NSGAppSSH.properties.protocol
+          sourcePortRange: NSGAppSSH.properties.sourcePortRange
+          destinationPortRange: NSGAppSSH.properties.destinationPortRange
+          sourceAddressPrefix: NSGAppSSH.properties.sourceAddressPrefix
+          destinationAddressPrefix: NSGAppSSH.properties.destinationAddressPrefix
+          priority: NSGAppSSH.properties.priority
+
+        }
+      }
+      {
+        name: NSGAppHTTP.name
+        properties: {
+          direction: NSGAppHTTP.properties.direction
+          access: NSGAppHTTP.properties.access
+          protocol: NSGAppHTTP.properties.protocol
+          sourcePortRange: NSGAppHTTP.properties.sourcePortRange
+          destinationPortRange: NSGAppHTTP.properties.destinationAddressPrefix
+          sourceAddressPrefix: NSGAppHTTP.properties.sourceAddressPrefix
+          destinationAddressPrefix: NSGAppHTTP.properties.destinationAddressPrefix
+          priority: NSGAppHTTP.properties.priority
+
+        }
+
+      }
+    ]
   }
 }
 
@@ -31,7 +120,37 @@ resource networkSecurityGroupManagementSubnet 'Microsoft.Network/networkSecurity
   name: nsgManagementSubnet
   location: location
   properties: {
-    securityRules: []
+    securityRules: [
+      {
+        name: NSGManagRDP.name
+        properties: {
+          direction: NSGManagRDP.properties.direction
+          access: NSGManagRDP.properties.access
+          protocol: NSGManagRDP.properties.protocol
+          sourcePortRange: NSGManagRDP.properties.sourcePortRange
+          destinationPortRange: NSGManagRDP.properties.destinationPortRange
+          sourceAddressPrefix: NSGManagRDP.properties.sourceAddressPrefix
+          destinationAddressPrefix: NSGManagRDP.properties.destinationAddressPrefix
+          priority: NSGManagRDP.properties.priority
+
+        }
+
+      }
+      {
+        name: NSGManagSSH.name
+        properties: {
+          direction: NSGManagSSH.properties.direction
+          access: NSGManagSSH.properties.access
+          protocol: NSGManagSSH.properties.protocol
+          sourcePortRange: NSGManagSSH.properties.sourcePortRange
+          destinationPortRange: NSGManagSSH.properties.destinationPortRange
+          sourceAddressPrefix: NSGManagSSH.properties.sourceAddressPrefix
+          destinationAddressPrefix: NSGManagSSH.properties.destinationAddressPrefix
+          priority: NSGManagSSH.properties.priority
+
+        }
+      }
+    ]
   }
 }
 
