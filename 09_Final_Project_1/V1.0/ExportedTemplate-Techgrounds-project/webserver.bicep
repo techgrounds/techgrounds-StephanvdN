@@ -161,3 +161,6 @@ resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' 
     }
   }
 }
+
+output linuxconfigPath string = linuxConfig.path
+output linuxconfigKeyData string = linuxConfig.keyData

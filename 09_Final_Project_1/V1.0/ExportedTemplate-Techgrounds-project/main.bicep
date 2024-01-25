@@ -1,5 +1,9 @@
 param location string = resourceGroup().location
 
+@description('Username Managementserver')
+@secure()
+param UsernameManagement string = 'Techgrounds'
+
 @description('Password Managementserver')
 @secure()
 param PasswordManagement string = 'P5lyU+e$$4cuPEv_s8ip'
@@ -19,6 +23,7 @@ module networkModule 'network.bicep' = {
   }
 }
 
+/*
 @description('Deploy Webserver')
 module webserverModule 'webserver.bicep' = {
   name: 'webserverDeployment'
@@ -39,7 +44,7 @@ module managementseverModule 'managementserver.bicep' = {
   params: {
     location: location
     VmManagementserver: 'Vm-manageserver'
-    adminUsername: 'Techgrounds'
+    adminUsername: UsernameManagement
     NetworkInterfaceManagement: 'NetworkInterfaceManagementServer'
     adminPassword: PasswordManagement
     publicIPAddressManagementServerName: 'PublicIPManagementServer'
@@ -53,6 +58,21 @@ module storageModule 'storage.bicep' = {
   params: {
     location: location
     storageAccountName: 'storagetechgrounds'
+
+  }
+}
+
+*/
+
+@description('Deploy Keyvault')
+module keyvaultModule 'keyvault.bicep' = {
+  name: 'keyvaultDeployment'
+  params: {
+    location: location
+    PasswordManagement: PasswordManagement
+    ManagmentServerPWSecret: UsernameManagement
+
+    // SSHWebserverPath: webserverModule.outputs.linuxconfigPath
 
   }
 }
