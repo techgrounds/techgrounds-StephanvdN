@@ -68,10 +68,12 @@ NetworkAcls: {
 
 
 ---
-# Log [datum]
+# Log [25-01-2024]
 
 
 ## Dagverslag (1 zin)
+
+vandaag was ik de hele dag bezig met de keyvault, heb de gebruikersnaam en wachtwoord in de keyvault gekregen
 
 
 ## Obstakels
@@ -84,10 +86,12 @@ NetworkAcls: {
 
 
 ---
-# Log [datum]
+# Log [26-01-2024]
 
 
 ## Dagverslag (1 zin)
+
+vandaag was een slechte dag, weinig concentratie omdat er bij teveel gebeurde buiten les om
 
 
 ## Obstakels

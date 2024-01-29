@@ -1,4 +1,4 @@
-# Log [datum]
+# Log [29-01-2024]
 
 
 ## Dagverslag (1 zin)
@@ -14,7 +14,7 @@
 
 
 ---
-# Log [datum]
+# Log [30-01-2024]
 
 
 ## Dagverslag (1 zin)
@@ -30,7 +30,7 @@
 
 
 ---
-# Log [datum]
+# Log [31-01-2024]
 
 
 ## Dagverslag (1 zin)
@@ -46,7 +46,7 @@
 
 
 ---
-# Log [datum]
+# Log [01-02-2024]
 
 
 ## Dagverslag (1 zin)
@@ -62,7 +62,7 @@
 
 
 ---
-# Log [datum]
+# Log [02-02-2024]
 
 
 ## Dagverslag (1 zin)

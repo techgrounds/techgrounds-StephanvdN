@@ -8,6 +8,8 @@ param UsernameManagement string = 'Techgrounds'
 @secure()
 param PasswordManagement string = 'P5lyU+e$$4cuPEv_s8ip'
 
+param VmManagmentserver string = 'VmManagServ'
+
 @description('Deploy Network')
 module networkModule 'network.bicep' = {
   name: 'networkDeployment'
@@ -23,7 +25,6 @@ module networkModule 'network.bicep' = {
   }
 }
 
-/*
 @description('Deploy Webserver')
 module webserverModule 'webserver.bicep' = {
   name: 'webserverDeployment'
@@ -43,7 +44,7 @@ module managementseverModule 'managementserver.bicep' = {
   name: 'managementserverDeployment'
   params: {
     location: location
-    VmManagementserver: 'Vm-manageserver'
+    VmManagementserver: VmManagmentserver
     adminUsername: UsernameManagement
     NetworkInterfaceManagement: 'NetworkInterfaceManagementServer'
     adminPassword: PasswordManagement
@@ -54,7 +55,7 @@ module managementseverModule 'managementserver.bicep' = {
 
 @description('Deploy Storage')
 module storageModule 'storage.bicep' = {
-  name: 'StorageDeployment'
+  name: 'storageDeployment'
   params: {
     location: location
     storageAccountName: 'storagetechgrounds'
@@ -62,19 +63,22 @@ module storageModule 'storage.bicep' = {
   }
 }
 
-*/
-
 @description('Deploy Keyvault')
 module keyvaultModule 'keyvault.bicep' = {
   name: 'keyvaultDeployment'
   params: {
     location: location
-    PasswordManagement: PasswordManagement
-    ManagmentServerPWSecret: UsernameManagement
-
-    // SSHWebserverPath: webserverModule.outputs.linuxconfigPath
+    PasswordManagementServer: PasswordManagement
+    UsernameManagmentServer: UsernameManagement
 
   }
 }
 
+@description('Deploy Backup')
+module backupModule 'backup.bicep' = {
+  name: 'backupDeployment'
+  params: {
+    VmManagementserver: VmManagmentserver
+  }
+}
 // output vnetapp string = networkModule.outputs.vnetAppOutput
