@@ -9,7 +9,7 @@ param UsernameManagmentServer string
 param PasswordManagementServer string
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: 'KeyVaultSteph'
+  name: 'KeyVault${uniqueString(resourceGroup().id)}'
   location: location
   properties: {
     networkAcls: {

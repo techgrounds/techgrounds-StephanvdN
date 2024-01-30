@@ -147,3 +147,5 @@ resource VirtualMachineManagementServer 'Microsoft.Compute/virtualMachines@2022-
     }
   }
 }
+
+output VmManagementserverOutput string = VirtualMachineManagementServer.name
