@@ -6,6 +6,8 @@ param subnetApp string
 param publicIPWebServerName string
 param dnsLabelPrefix string = toLower('${VmWebserver}-${uniqueString(resourceGroup().id)}')
 
+var installScript = loadFileAsBase64('installscript.sh')
+
 var VmWebserverZone = {
   zone: '2'
 }
@@ -137,6 +139,7 @@ resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' 
     osProfile: {
       computerName: VmWebserver
       adminUsername: adminUsername
+
       linuxConfiguration: {
         disablePasswordAuthentication: linuxConfig.disablePasswordAuthentication
         ssh: {
@@ -158,6 +161,17 @@ resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' 
           }
         }
       ]
+    }
+  }
+}
+
+resource deploymenscript 'Microsoft.Compute/virtualMachines/runCommands@2022-03-01' = {
+  parent: VirtualMachineWebserver
+  name: 'installScript'
+  location: location
+  properties: {
+    source: {
+      script: installScript
     }
   }
 }
