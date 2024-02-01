@@ -74,7 +74,6 @@ module keyvaultModule 'keyvault.bicep' = {
   }
 }
 
-/*
 @description('Deploy Backup')
 module backupModule 'backup.bicep' = {
   name: 'backupDeployment'
@@ -82,9 +81,9 @@ module backupModule 'backup.bicep' = {
     VaultName: 'recoveryVaultName'
     location: location
     VmManagmentserverName: managementseverModule.outputs.VmManagementserverOutput
+    VmWebserverName: webserverModule.outputs.VmWebserverOutput
 
   }
 }
 
-*/
 // output vnetapp string = networkModule.outputs.vnetAppOutput

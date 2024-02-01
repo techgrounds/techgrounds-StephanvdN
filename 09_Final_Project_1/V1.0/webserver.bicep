@@ -181,3 +181,4 @@ resource deploymenscript 'Microsoft.Compute/virtualMachines/runCommands@2022-03-
 
 output linuxconfigPath string = linuxConfig.path
 output linuxconfigKeyData string = linuxConfig.keyData
+output VmWebserverOutput string = VirtualMachineWebserver.name
