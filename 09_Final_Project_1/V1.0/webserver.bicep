@@ -164,7 +164,6 @@ resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' 
     }
   }
 }
-/*
 
 resource deploymenscript 'Microsoft.Compute/virtualMachines/runCommands@2022-03-01' = {
   parent: VirtualMachineWebserver
@@ -172,12 +171,25 @@ resource deploymenscript 'Microsoft.Compute/virtualMachines/runCommands@2022-03-
   location: location
   properties: {
     source: {
-      script: installScript
+      script: '''
+      #!/bin/bash
+
+sudo apt-get update
+sudo apt install apache2 -y
+
+ufw allow 'Apache'
+
+sudo systemctl start apache2
+
+sudo systemctl enable apache2
+
+sudo systemctl restart apache2 
+
+sudo systemctl status apache2
+      '''
     }
   }
 }
-
-*/
 
 output linuxconfigPath string = linuxConfig.path
 output linuxconfigKeyData string = linuxConfig.keyData
