@@ -8,7 +8,7 @@
 5. The admin/management server must only be accessible from trusted locations (office/admin's home)
 6. The following IP ranges are used: 10.10.10.0/24 & 10.20.20.0/24
 7. All subnets must be protected by a firewall at subnet level.
-8. SSH of RDP verbindingen met de webserver mogen alleen tot stand komen vanuit de admin server.
+8. SSH or RDP connections to the web server may only be made from the admin server.
 
 ---
 

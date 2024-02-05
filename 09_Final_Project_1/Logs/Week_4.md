@@ -36,6 +36,8 @@ ik heb vandaag aan de backup gewerk. Ik kreeg continu de foutmelding over dat se
 ---
 # Log [31-01-2024]
 
+vandaag had ik een slechte dag omdat ik er mentaal doorheen zit en heb niet veel kunnen doen
+
 
 ## Dagverslag (1 zin)
 
@@ -52,6 +54,7 @@ ik heb vandaag aan de backup gewerk. Ik kreeg continu de foutmelding over dat se
 ---
 # Log [01-02-2024]
 
+vandaag ben ik buiten gaan wandelen want het zou de enige dag in de week zijn dat het zonnetje zou schijnen, toen ik terug kwam heb ik het script toegevoegd aan de webserver en een backup voor de webserver kunnen maken
 
 ## Dagverslag (1 zin)
 
@@ -70,6 +73,8 @@ ik heb vandaag aan de backup gewerk. Ik kreeg continu de foutmelding over dat se
 
 
 ## Dagverslag (1 zin)
+
+vandaag heb ik gewerkt aan de presentatie
 
 
 ## Obstakels
