@@ -6,7 +6,7 @@ param subnetApp string
 param publicIPWebServerName string
 param dnsLabelPrefix string = toLower('${VmWebserver}-${uniqueString(resourceGroup().id)}')
 
-var installScript = loadFileAsBase64('installscript.sh')
+// var installScript = loadFileAsBase64('installscript.sh')
 
 var VmWebserverZone = {
   zone: '2'
