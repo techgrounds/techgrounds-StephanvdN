@@ -9,7 +9,9 @@ param VmScaleSetWebserver string = 'VmScaleSetWebserver'
 param ApplicationGatewayName string = 'ApplicationGatewayWeb'
 param vnetApp string
 
-// var installScript = loadFileAsBase64('installscript.sh')
+param ssl_cert string = loadFileAsBase64('Keys/myCA.cer')
+param gatewaySubnetName string = 'gateway_Subnet'
+// param gatewaySubnetID string = resourceId('Microsoft.Network/virtualNetworks/subnets/', vnetApp, gatewaySubnetName)
 
 var VmWebserverZone = {
   zone: '2'
@@ -64,6 +66,9 @@ var NetworkInterfaceConfig = {
 
 var BackAddressPoolID = resourceId('Microsoft.Network/applicationGateways/backendAddressPools', ApplicationGatewayName, 'myBackendPool')
 
+var vmScaleSetName = toLower(substring('${VmScaleSetWebserver}${uniqueString(resourceGroup().id)}', 0, 9))
+var backEndPoolName = '${vmScaleSetName}BackEndPool'
+
 resource VirtualNetworkWeb 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
   name: vnetApp
 }
@@ -89,137 +94,235 @@ resource publicIpAddressWebServer 'Microsoft.Network/publicIPAddresses@2022-01-0
 
 }
 
-resource networkInterfaceWebServer 'Microsoft.Network/networkInterfaces@2022-01-01' = {
-  name: NetworkInterfaceWeb
+// resource networkInterfaceWebServer 'Microsoft.Network/networkInterfaces@2022-01-01' = {
+//   name: NetworkInterfaceWeb
+//   location: location
+//   properties: {
+//     ipConfigurations: [
+//       {
+//         name: NetworkInterfaceConfig.name
+//         id: NetworkInterfaceWeb
+//         type: NetworkInterfaceConfig.type
+//         properties: {
+//           privateIPAllocationMethod: NetworkInterfaceConfig.properties.privateIPAllocationMethod
+//           publicIPAddress: {
+//             id: publicIpAddressWebServer.id
+//             properties: {
+//               deleteOption: 'Delete'
+//             }
+//           }
+//           subnet: {
+//             id: VirtualNetworkWeb.properties.subnets[1].id
+//           }
+//           primary: NetworkInterfaceConfig.properties.primary
+//           privateIPAddressVersion: NetworkInterfaceConfig.properties.privateIPAddressVersion
+//         }
+//       }
+//     ]
+
+//   }
+// }
+
+resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' = {
+  name: ApplicationGatewayName
   location: location
   properties: {
-    ipConfigurations: [
+    sku: {
+      name: 'Standard_v2'
+      tier: 'Standard_v2'
+      capacity: 10
+    }
+    sslCertificates: [
       {
-        name: NetworkInterfaceConfig.name
-        id: NetworkInterfaceWeb
-        type: NetworkInterfaceConfig.type
+        name: 'mycert'
         properties: {
-          privateIPAllocationMethod: NetworkInterfaceConfig.properties.privateIPAllocationMethod
+          data: loadFileAsBase64('Keys/certificate.pfx')
+          password: 'Techgrounds'
+        }
+      }
+    ]
+    // trustedClientCertificates: [
+    //   { name: 'test-cert'
+    //     properties: {
+    //       data: ssl_cert
+    //     }
+    //   }
+    // ]
+    backendAddressPools: [
+      {
+        name: backEndPoolName
+      }
+    ]
+    backendHttpSettingsCollection: [
+      {
+        name: 'backendSettings_collection'
+        properties: {
+          port: 80
+          protocol: 'Http'
+          cookieBasedAffinity: 'Disabled'
+          requestTimeout: 20
+
+        }
+      }
+    ]
+    frontendIPConfigurations: [
+      {
+        name: 'frontendGatewayIP'
+        properties: {
           publicIPAddress: {
             id: publicIpAddressWebServer.id
-            properties: {
-              deleteOption: 'Delete'
-            }
           }
+        }
+
+      }
+      // {
+      //   // name: 'FrontendPrivateIP'
+      //   // properties: {
+      //   //   privateIPAllocationMethod: 'Dynamic'
+      //   //   subnet: {
+      //   //     id: resourceId('Microsoft.Network/virtualNetworks/subnets/', subnetApp, gatewaySubnetName)
+      //   //   }
+      //   // }
+      // }
+    ]
+    frontendPorts: [
+      {
+        name: 'HTTP_redirectPort'
+        properties: {
+          port: 80
+        }
+
+      }
+      {
+        name: 'HTTPS_port'
+        properties: {
+          port: 443
+        }
+      }
+
+    ]
+
+    gatewayIPConfigurations: [
+      {
+        name: 'GatewayIP'
+        properties: {
           subnet: {
-            id: subnetApp
+            id: VirtualNetworkWeb.properties.subnets[1].id
           }
-          primary: NetworkInterfaceConfig.properties.primary
-          privateIPAddressVersion: NetworkInterfaceConfig.properties.privateIPAddressVersion
+        }
+      }
+    ]
+    httpListeners: [
+      {
+        name: 'redirect_HTTPtoHTTPS_listener'
+        properties: {
+          frontendIPConfiguration: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', ApplicationGatewayName, 'frontendGatewayIP')
+          }
+          frontendPort: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', ApplicationGatewayName, 'HTTP_redirectPort')
+          }
+          protocol: 'Http'
+          requireServerNameIndication: false
+        }
+      }
+      {
+        name: 'HTTPS_Listener'
+        properties: {
+          frontendIPConfiguration: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', ApplicationGatewayName, 'frontendGatewayIP')
+          }
+          frontendPort: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts/', ApplicationGatewayName, 'HTTPS_port')
+          }
+          protocol: 'Https'
+          requireServerNameIndication: false
+          sslCertificate: {
+            id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', ApplicationGatewayName, 'mycert')
+          }
+
+        }
+      }
+    ]
+    listeners: []
+    requestRoutingRules: [
+      {
+        name: 'HTTPS_RoutingRule'
+        properties: {
+          ruleType: 'Basic'
+          priority: 120
+          httpListener: {
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', ApplicationGatewayName, 'HTTPS_listener')
+          }
+          backendAddressPool: {
+            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', ApplicationGatewayName, backEndPoolName)
+          }
+          backendHttpSettings: {
+            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection/', ApplicationGatewayName, 'backendSettings_collection')
+          }
+        }
+      }
+      {
+        name: 'HTTP_routingRule'
+        properties: {
+          ruleType: 'Basic'
+          priority: 110
+          httpListener: {
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', ApplicationGatewayName, 'redirect_HTTPtoHTTPS_listener')
+          }
+          redirectConfiguration: {
+            id: resourceId('Microsoft.Network/applicationGateways/redirectConfigurations', ApplicationGatewayName, 'HTTP_to_HTTPS_redirection')
+          }
+
+        }
+      }
+
+    ]
+    // probes: [
+    //   {
+    //     name: 'gatewayHealthProbe'
+    //     properties: {
+    //       host: '127.0.0.1'
+    //       interval: 15
+    //       path: '/'
+    //       port: 443
+    //       protocol: 'Https'
+    //       timeout: 10
+    //       unhealthyThreshold: 10
+    //       match: {
+    //         statusCodes: [
+    //           '200'
+    //         ]
+    //       }
+    //     }
+    //   }
+    // ]
+
+    redirectConfigurations: [
+      {
+        name: 'HTTP_to_HTTPS_redirection'
+        properties: {
+          targetListener: {
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', ApplicationGatewayName, 'HTTPS_listener')
+          }
+          redirectType: 'Permanent'
+          includePath: true
+          includeQueryString: true
         }
       }
     ]
 
+    // enableHttp2: true
+    // autoscaleConfiguration: {
+    //   minCapacity: 1
+    //   maxCapacity: 3
+    // }
   }
+  // dependsOn: [
+  //   VirtualNetworkWeb
+
+  // ]
 }
-
-// resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' = {
-//   name: ApplicationGatewayName
-//   location: location
-//   properties: {
-//     sku: {
-//       name: 'Standard_v2'
-//       tier: 'Standard_v2'
-//     }
-//     gatewayIPConfigurations: [
-//       {
-//         name: 'appGatewayIPConfig'
-//         properties: {
-//           subnet: {
-//             id: subnetApp
-//           }
-//         }
-//       }
-//     ]
-//     frontendIPConfigurations: [
-//       {
-//         name: 'appGatewayIPConfig'
-//         properties: {
-//           privateIPAllocationMethod: 'Dynamic'
-//           publicIPAddress: {
-//             id: publicIpAddressWebServer.id
-//           }
-//         }
-//       }
-//     ]
-//     frontendPorts: [
-//       {
-//         name: 'port_80'
-//         properties: {
-//           port: 80
-//         }
-//       }
-//     ]
-//     backendAddressPools: [
-//       {
-//         name: 'myBackendPool'
-//         properties: {
-
-//         }
-//       }
-//     ]
-//     backendHttpSettingsCollection: [
-//       {
-//         name: 'myHTTPSetting'
-//         properties: {
-//           port: 80
-//           protocol: 'Http'
-//           cookieBasedAffinity: 'Disabled'
-//           pickHostNameFromBackendAddress: false
-//           requestTimeout: 20
-
-//         }
-//       }
-//     ]
-//     httpListeners: [
-//       {
-//         name: 'myListener'
-//         properties: {
-//           frontendIPConfiguration: {
-//             id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', ApplicationGatewayName, 'appGwPublicFrontendIp')
-//           }
-//           frontendPort: {
-//             id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', ApplicationGatewayName, 'port_80')
-//           }
-//           protocol: 'Http'
-//           requireServerNameIndication: false
-//         }
-//       }
-//     ]
-//     requestRoutingRules: [
-//       {
-//         name: 'myRoutingRule'
-//         properties: {
-//           ruleType: 'Basic'
-//           httpListener: {
-//             id: resourceId('Microsoft.Network/applicationGateways/httpListeners', ApplicationGatewayName, 'myListener')
-//           }
-//           backendAddressPool: {
-//             id: BackAddressPoolID
-
-//           }
-//           backendHttpSettings: {
-//             id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', ApplicationGatewayName, 'myHTTPSetting')
-
-//           }
-//         }
-//       }
-//     ]
-//     enableHttp2: false
-//     autoscaleConfiguration: {
-//       minCapacity: 1
-//       maxCapacity: 3
-//     }
-//   }
-//   dependsOn: [
-//     VirtualNetworkWeb
-//   ]
-// }
 
 resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
   name: VmScaleSetWebserver
@@ -227,19 +330,58 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
   sku: {
     name: 'Standard_D2s_v3'
     tier: 'Standard'
-    capacity: 1
+    capacity: 3
   }
   zones: [
     '2'
   ]
   properties: {
+    automaticRepairsPolicy: {
+      enabled: true
+      gracePeriod: 'PT10M'
+    }
+    overprovision: true
+    upgradePolicy: {
+      mode: 'Automatic'
+    }
     singlePlacementGroup: false
-    orchestrationMode: 'Flexible'
     platformFaultDomainCount: 1
     virtualMachineProfile: {
+      extensionProfile: {
+        extensions: [
+          {
+            name: 'healthExtention'
+            properties: {
+              autoUpgradeMinorVersion: true
+              publisher: 'Microsoft.ManagedServices'
+              type: 'ApplicationHealthLinux'
+              typeHandlerVersion: '1.0'
+              settings: {
+                protocol: 'http'
+                port: 80
+              }
+            }
+          }
+        ]
+      }
+      storageProfile: {
+        osDisk: {
+          createOption: 'FromImage'
+        }
+        imageReference: {
+          publisher: 'canonical'
+          offer: '0001-com-ubuntu-server-focal'
+          sku: '20_04-lts-gen2'
+          version: 'latest'
+        }
+      }
+      securityProfile: {
+        encryptionAtHost: true
+      }
       osProfile: {
-        computerNamePrefix: 'Project-Techgrounds'
-        adminUsername: 'azureuser'
+        computerNamePrefix: vmScaleSetName
+        adminUsername: adminUsername
+        // customData: 
         linuxConfiguration: {
           disablePasswordAuthentication: true
           ssh: {
@@ -250,66 +392,29 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
               }
             ]
           }
-          provisionVMAgent: true
-          patchSettings: {
-            patchMode: 'ImageDefault'
-            assessmentMode: 'ImageDefault'
-          }
-        }
-        secrets: []
-        allowExtensionOperations: true
-      }
-      storageProfile: {
-        osDisk: {
-          osType: 'Linux'
-          createOption: 'FromImage'
-          caching: 'ReadWrite'
-          managedDisk: {
-            storageAccountType: 'Standard_LRS'
-          }
-          deleteOption: 'Delete'
-          diskSizeGB: 30
-        }
-        imageReference: {
-          publisher: 'canonical'
-          offer: '0001-com-ubuntu-server-focal'
-          sku: '20_04-lts-gen2'
-          version: 'latest'
         }
       }
       networkProfile: {
-
-        networkApiVersion: '2020-11-01'
         networkInterfaceConfigurations: [
           {
             name: 'VmScaleSetWebserver-Nic'
             properties: {
               primary: true
-              enableAcceleratedNetworking: false
-              enableIPForwarding: false
-              deleteOption: 'Delete'
               ipConfigurations: [
                 {
                   name: 'VmScaleSetWebserver-defaultIpConfiguration'
                   properties: {
-                    privateIPAddressVersion: 'IPv4'
                     subnet: {
-                      id: subnetApp
+                      id: resourceId('Microsoft.Network/virtualNetworks/subnets/', vnetApp, 'GatewaySubnetTest')
+                      // subnetApp
                     }
-                    primary: true
-                    applicationSecurityGroups: []
                     applicationGatewayBackendAddressPools: [
+                      {
+                        id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools/', ApplicationGatewayName, backEndPoolName)
+                      }
 
                     ]
-                    publicIPAddressConfiguration: {
-                      name: 'IpAddressConfig'
-                      properties: {
-                        deleteOption: 'Delete'
-                        dnsSettings: {
-                          domainNameLabel: dnsLabelPrefix
-                        }
-                      }
-                    }
+
                   }
                 }
               ]
@@ -324,9 +429,66 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
 
   }
   dependsOn: [
-    //ApplicationGateway
-    publicIpAddressWebServer
+
+    ApplicationGateway
   ]
+}
+
+resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
+  name: 'autoscaler'
+  location: location
+  properties: {
+    targetResourceUri: VirtualMachineScaleSetWebserver.id
+    enabled: true
+    profiles: [
+      {
+        name: 'scaler'
+        capacity: {
+          default: '1'
+          maximum: '3'
+          minimum: '1'
+        }
+        rules: [
+          {
+            metricTrigger: {
+              operator: 'GreaterThan'
+              timeGrain: 'PT1M'
+              statistic: 'Average'
+              timeAggregation: 'Average'
+              metricResourceUri: VirtualMachineScaleSetWebserver.id
+              timeWindow: 'PT5M'
+              threshold: 50
+              metricName: 'Percentag CPU'
+            }
+            scaleAction: {
+              type: 'ChangeCount'
+              direction: 'Increase'
+              cooldown: 'PT5M'
+            }
+
+          }
+          {
+            metricTrigger: {
+              operator: 'LessThan'
+              timeGrain: 'PT1M'
+              statistic: 'Average'
+              timeAggregation: 'Average'
+              metricResourceUri: VirtualMachineScaleSetWebserver.id
+              timeWindow: 'PT3M'
+              threshold: 30
+              metricName: 'Percentage CPU'
+            }
+            scaleAction: {
+              type: 'ChangeCount'
+              direction: 'Decrease'
+              cooldown: 'PT3M'
+              value: '1'
+            }
+          }
+        ]
+      }
+    ]
+  }
 }
 
 // resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' = {

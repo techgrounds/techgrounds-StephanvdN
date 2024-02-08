@@ -9,7 +9,7 @@ param Vnet2Peering string
 var vnetappconfig = {
   addressPrefixes: '10.20.20.0/24'
   subnetName: 'appSubnet'
-  subnetPrefixes: '10.20.20.0/24'
+  subnetPrefixes: '10.20.20.64/26'
 
 }
 
@@ -17,6 +17,12 @@ var vnetmanagementconfig = {
   addresPrefixes: '10.10.10.0/24'
   subnetName: 'ManagementSubnet'
   subnetPrefixes: '10.10.10.0/24'
+}
+
+var SubnetGatewayConfig = {
+  addresPrefixes: '10.20.20.0/24'
+  subnetName: 'GWSubnet'
+  subnetPrefixes: '10.20.20.128/26'
 }
 
 var NSGAppSSH = {
@@ -168,12 +174,20 @@ resource vnetApp 'Microsoft.Network/virtualNetworks@2022-01-01' = {
         name: vnetappconfig.subnetName
         properties: {
           addressPrefix: vnetappconfig.subnetPrefixes
-          networkSecurityGroup: {
-            id: networkSecurityGroupAppSubnet.id
-          }
 
         }
+
       }
+      {
+        name: SubnetGatewayConfig.subnetName
+        properties: {
+          addressPrefix: SubnetGatewayConfig.subnetPrefixes
+          // networkSecurityGroup: {
+          //   id: networkSecurityGroupAppSubnet.id
+          // }
+        }
+      }
+
     ]
   }
 
@@ -235,4 +249,5 @@ resource VnetPeering2 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@
 
 output subnetVnetApp string = vnetApp.properties.subnets[0].id
 output subnetVnetManag string = vnetManagement.properties.subnets[0].id
+// output GatewaySubnet string = vnetApp.properties.subnets[1].id
 output VnetWebName string = vnetApp.name
