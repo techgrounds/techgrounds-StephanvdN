@@ -366,7 +366,9 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
       }
       storageProfile: {
         osDisk: {
-          createOption: 'FromImage'
+          osType: OsDiskVMWebserver.osType
+          createOption: OsDiskVMWebserver.createOption
+          caching: OsDiskVMWebserver.caching
         }
         imageReference: {
           publisher: 'canonical'
@@ -375,9 +377,9 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
           version: 'latest'
         }
       }
-      securityProfile: {
-        encryptionAtHost: true
-      }
+      // securityProfile: {
+      //   encryptionAtHost: true
+      // }
       osProfile: {
         computerNamePrefix: vmScaleSetName
         adminUsername: adminUsername
@@ -387,8 +389,8 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
           ssh: {
             publicKeys: [
               {
-                path: '/home/azureuser/.ssh/authorized_keys'
-                keyData: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC9tgl27jmiprWvxTKmatb846TAnFilwJM+Q3C3ysidnabj4qRYYtx56zHUQbxUl9WVbfYa8MjJ5lqwgNBFPIrHPIhUauRR7f7g0rHVx39k/XiM0De9B5Ur4f9YIb0W1l1r4dWXjCpfzB/9gNxkTQ3C+G+y4L/aJ+TU/2xUtrt0s+29DgHQ15rJJ7iUA7repe4/OTNh1b/Vgp7HWwtTmH/EuqwOpxUVkMZPM0Jp20N3aVPlVP2czT22h/XT1dQtpHpfrRwrAM8ZzLf8yNCOIr2J8K6gv8ysJzIYfNALJcljaCjBOFmVTziuKW1KA/GspOslg7kPBxwLb+kmNUZNs+nQgO6wbcbJYvdZqXJOEW5192s0+WBQ84x7kum4cboJ6aWvjcfOCi+VWTOAaLXABTSPE41CvMDUp5OHCq+YU7HXRIubZm5yySrZr8T0TBWfDMFOadaUkyDWhD/2vjjVXvkcPUXrmbhzg4q2ov8NqSaUZBVmj2yQT9aa09qxs9mOjHE= generated-by-azure'
+                path: linuxConfig.path
+                keyData: linuxConfig.keyData
               }
             ]
           }
@@ -405,8 +407,9 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
                   name: 'VmScaleSetWebserver-defaultIpConfiguration'
                   properties: {
                     subnet: {
-                      id: resourceId('Microsoft.Network/virtualNetworks/subnets/', vnetApp, 'GatewaySubnetTest')
-                      // subnetApp
+                      id: VirtualNetworkWeb.properties.subnets[0].id
+                      // resourceId('Microsoft.Network/virtualNetworks/subnets/', vnetApp, 'GatewaySubnetTest')
+
                     }
                     applicationGatewayBackendAddressPools: [
                       {
