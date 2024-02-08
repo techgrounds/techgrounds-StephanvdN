@@ -461,12 +461,13 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
               metricResourceUri: VirtualMachineScaleSetWebserver.id
               timeWindow: 'PT5M'
               threshold: 50
-              metricName: 'Percentag CPU'
+              metricName: 'Percentage CPU'
             }
             scaleAction: {
               type: 'ChangeCount'
               direction: 'Increase'
               cooldown: 'PT5M'
+              value: '1'
             }
 
           }

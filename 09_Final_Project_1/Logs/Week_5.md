@@ -43,7 +43,7 @@ Ik heb me gefocust op de Machine Scale Set om het werkend te krijgen, ik heb voo
 
 ## Dagverslag (1 zin)
 
-vandaag heb ik gewerkt aan de presentatie
+Hele dag aan Application Gateway gezeten
 
 
 ## Obstakels
@@ -62,7 +62,7 @@ vandaag heb ik gewerkt aan de presentatie
 
 ## Dagverslag (1 zin)
 
-vandaag heb ik gewerkt aan de presentatie
+vandaag is het me eindelijk gelukt om de Application Gateway, Scale Set en Scale Set Settings af te maken
 
 
 ## Obstakels
