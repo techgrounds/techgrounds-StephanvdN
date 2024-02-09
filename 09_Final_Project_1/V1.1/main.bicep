@@ -38,6 +38,8 @@ module webserverModule 'webserver.bicep' = {
     subnetApp: networkModule.outputs.subnetVnetApp
     publicIPWebServerName: 'PublicIPWebserver'
     vnetApp: networkModule.outputs.VnetWebName
+    networkSecurityGroupAppSubnet: networkModule.outputs.NSGVnetApp
+
   }
 
 }

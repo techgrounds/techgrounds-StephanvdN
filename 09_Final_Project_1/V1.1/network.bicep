@@ -174,6 +174,9 @@ resource vnetApp 'Microsoft.Network/virtualNetworks@2022-01-01' = {
         name: vnetappconfig.subnetName
         properties: {
           addressPrefix: vnetappconfig.subnetPrefixes
+          networkSecurityGroup: {
+            id: networkSecurityGroupAppSubnet.id
+          }
 
         }
 
@@ -249,5 +252,6 @@ resource VnetPeering2 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@
 
 output subnetVnetApp string = vnetApp.properties.subnets[0].id
 output subnetVnetManag string = vnetManagement.properties.subnets[0].id
+output NSGVnetApp string = networkSecurityGroupAppSubnet.name
 // output GatewaySubnet string = vnetApp.properties.subnets[1].id
 output VnetWebName string = vnetApp.name

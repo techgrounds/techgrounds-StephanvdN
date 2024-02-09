@@ -8,10 +8,12 @@ param dnsLabelPrefix string = toLower('${VmScaleSetWebserver}-${uniqueString(res
 param VmScaleSetWebserver string = 'VmScaleSetWebserver'
 param ApplicationGatewayName string = 'ApplicationGatewayWeb'
 param vnetApp string
+param networkSecurityGroupAppSubnet string
 
 param ssl_cert string = loadFileAsBase64('Keys/myCA.cer')
 param gatewaySubnetName string = 'gateway_Subnet'
 // param gatewaySubnetID string = resourceId('Microsoft.Network/virtualNetworks/subnets/', vnetApp, gatewaySubnetName)
+param instanceCount int = 3
 
 var VmWebserverZone = {
   zone: '2'
@@ -71,6 +73,10 @@ var backEndPoolName = '${vmScaleSetName}BackEndPool'
 
 resource VirtualNetworkWeb 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
   name: vnetApp
+}
+
+resource NSGVirtualNetworkWeb 'Microsoft.Network/networkSecurityGroups@2022-01-01' existing = {
+  name: networkSecurityGroupAppSubnet
 }
 
 resource publicIpAddressWebServer 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
@@ -330,7 +336,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
   sku: {
     name: 'Standard_D2s_v3'
     tier: 'Standard'
-    capacity: 3
+    capacity: int(instanceCount)
   }
   zones: [
     '2'
@@ -366,9 +372,16 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
       }
       storageProfile: {
         osDisk: {
-          osType: OsDiskVMWebserver.osType
-          createOption: OsDiskVMWebserver.createOption
-          caching: OsDiskVMWebserver.caching
+
+          createOption: 'FromImage'
+          caching: 'ReadWrite'
+          managedDisk: {
+            storageAccountType: 'StandardSSD_LRS'
+          }
+          // osType: OsDiskVMWebserver.osType
+          // createOption: OsDiskVMWebserver.createOption
+          // caching: OsDiskVMWebserver.caching
+
         }
         imageReference: {
           publisher: 'canonical'
@@ -402,6 +415,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
             name: 'VmScaleSetWebserver-Nic'
             properties: {
               primary: true
+              enableAcceleratedNetworking: false
               ipConfigurations: [
                 {
                   name: 'VmScaleSetWebserver-defaultIpConfiguration'
@@ -421,18 +435,20 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
                   }
                 }
               ]
+              // networkSecurityGroup: NSGVirtualNetworkWeb
 
             }
           }
 
         ]
+
       }
 
     }
 
   }
   dependsOn: [
-
+    NSGVirtualNetworkWeb
     ApplicationGateway
   ]
 }
@@ -459,7 +475,7 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
               statistic: 'Average'
               timeAggregation: 'Average'
               metricResourceUri: VirtualMachineScaleSetWebserver.id
-              timeWindow: 'PT5M'
+              timeWindow: 'PT10M'
               threshold: 50
               metricName: 'Percentage CPU'
             }
@@ -478,7 +494,7 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
               statistic: 'Average'
               timeAggregation: 'Average'
               metricResourceUri: VirtualMachineScaleSetWebserver.id
-              timeWindow: 'PT3M'
+              timeWindow: 'PT5M'
               threshold: 30
               metricName: 'Percentage CPU'
             }
@@ -490,9 +506,13 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
             }
           }
         ]
+
       }
     ]
-  }
+    predictiveAutoscalePolicy: {
+      scaleMode: 'Disabled'
+      scaleLookAheadTime: 'PT14M'
+    } }
 }
 
 // resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' = {
