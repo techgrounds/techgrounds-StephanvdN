@@ -171,6 +171,7 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
           cookieBasedAffinity: 'Disabled'
           requestTimeout: 600
           pickHostNameFromBackendAddress: true
+          probeEnabled: true
           probe: {
             id: resourceId('Microsoft.Network/applicationGateways/probes', ApplicationGatewayName, 'Http-HealthProbe')
           }
@@ -183,6 +184,7 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
           port: 443
           protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
+          probeEnabled: true
           pickHostNameFromBackendAddress: true
           requestTimeout: 600
           probe: {
@@ -197,6 +199,7 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
         name: 'frontendGatewayIP'
         properties: {
           publicIPAddress: {
+
             id: publicIpAddressWebServer.id
           }
         }
@@ -321,22 +324,28 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
           pickHostNameFromBackendHttpSettings: false
           // match: {
           //   statusCodes: [
-          //     '200'
+          //     '200-399'
           //   ]
           // }
         }
       }
+
       {
         name: 'Http-HealthProbe'
         properties: {
           host: '127.0.0.1'
           interval: 30
-          path: '/health'
+          path: '/'
           port: 80
           protocol: 'Http'
           timeout: 30
           unhealthyThreshold: 3
           pickHostNameFromBackendHttpSettings: false
+          match: {
+            statusCodes: [
+              '200'
+            ]
+          }
 
         }
 
@@ -498,6 +507,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
   dependsOn: [
     NSGVirtualNetworkWeb
     ApplicationGateway
+
   ]
 
 }
