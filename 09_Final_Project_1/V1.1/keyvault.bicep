@@ -20,7 +20,9 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
           value: '81.19.209.53'
         }
       ]
-      virtualNetworkRules: []
+      virtualNetworkRules: [
+
+      ]
     }
     sku: {
       family: 'A'
@@ -71,7 +73,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enableSoftDelete: true
     vaultUri: 'https://keyvaultsteph.vault.azure.net/'
     provisioningState: 'Succeeded'
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'Enabled'
     softDeleteRetentionInDays: 7
 
   }

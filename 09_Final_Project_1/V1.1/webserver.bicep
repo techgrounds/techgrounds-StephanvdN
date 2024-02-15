@@ -66,7 +66,7 @@ var NetworkInterfaceConfig = {
 
 }
 
-var BackAddressPoolID = resourceId('Microsoft.Network/applicationGateways/backendAddressPools', ApplicationGatewayName, 'myBackendPool')
+// var BackAddressPoolID = resourceId('Microsoft.Network/applicationGateways/backendAddressPools', ApplicationGatewayName, 'myBackendPool')
 
 var vmScaleSetName = toLower(substring('${VmScaleSetWebserver}${uniqueString(resourceGroup().id)}', 0, 9))
 var backEndPoolName = '${vmScaleSetName}BackEndPool'
@@ -136,8 +136,9 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
     sku: {
       name: 'Standard_v2'
       tier: 'Standard_v2'
-      capacity: 10
+      capacity: 3
     }
+
     sslCertificates: [
       {
         name: 'mycert'
@@ -147,6 +148,7 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
         }
       }
     ]
+
     // trustedClientCertificates: [
     //   { name: 'test-cert'
     //     properties: {
@@ -157,6 +159,7 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
     backendAddressPools: [
       {
         name: backEndPoolName
+
       }
     ]
     backendHttpSettingsCollection: [
@@ -166,7 +169,25 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
           port: 80
           protocol: 'Http'
           cookieBasedAffinity: 'Disabled'
-          requestTimeout: 20
+          requestTimeout: 600
+          pickHostNameFromBackendAddress: true
+          probe: {
+            id: resourceId('Microsoft.Network/applicationGateways/probes', ApplicationGatewayName, 'Http-HealthProbe')
+          }
+
+        }
+      }
+      {
+        name: 'backendSettings_collection_443'
+        properties: {
+          port: 443
+          protocol: 'Https'
+          cookieBasedAffinity: 'Disabled'
+          pickHostNameFromBackendAddress: true
+          requestTimeout: 600
+          probe: {
+            id: resourceId('Microsoft.Network/applicationGateways/probes', ApplicationGatewayName, 'HttpsHealthProbe')
+          }
 
         }
       }
@@ -243,12 +264,14 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
           }
           protocol: 'Https'
           requireServerNameIndication: false
+
           sslCertificate: {
             id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', ApplicationGatewayName, 'mycert')
           }
 
         }
       }
+
     ]
     listeners: []
     requestRoutingRules: [
@@ -284,25 +307,46 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
       }
 
     ]
-    // probes: [
-    //   {
-    //     name: 'gatewayHealthProbe'
-    //     properties: {
-    //       host: '127.0.0.1'
-    //       interval: 15
-    //       path: '/'
-    //       port: 443
-    //       protocol: 'Https'
-    //       timeout: 10
-    //       unhealthyThreshold: 10
-    //       match: {
-    //         statusCodes: [
-    //           '200'
-    //         ]
-    //       }
-    //     }
-    //   }
-    // ]
+    probes: [
+      {
+        name: 'HttpsHealthProbe'
+        properties: {
+          host: '127.0.0.1'
+          interval: 30
+          path: '/health'
+          port: 443
+          protocol: 'Https'
+          timeout: 30
+          unhealthyThreshold: 3
+          pickHostNameFromBackendHttpSettings: false
+          // match: {
+          //   statusCodes: [
+          //     '200'
+          //   ]
+          // }
+        }
+      }
+      {
+        name: 'Http-HealthProbe'
+        properties: {
+          host: '127.0.0.1'
+          interval: 30
+          path: '/health'
+          port: 80
+          protocol: 'Http'
+          timeout: 30
+          unhealthyThreshold: 3
+          pickHostNameFromBackendHttpSettings: false
+
+        }
+
+      }
+    ]
+    // enableHttp2: true
+    // autoscaleConfiguration: {
+    //   minCapacity: 1
+    //   maxCapacity: 3
+    // }
 
     redirectConfigurations: [
       {
@@ -324,13 +368,16 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
     //   maxCapacity: 3
     // }
   }
-  // dependsOn: [
-  //   VirtualNetworkWeb
+  dependsOn: [
+    VirtualNetworkWeb
+    // publicIpAddressWebServer
+    NSGVirtualNetworkWeb
 
-  // ]
+  ]
 }
 
 resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
+
   name: VmScaleSetWebserver
   location: location
   sku: {
@@ -350,7 +397,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
     upgradePolicy: {
       mode: 'Automatic'
     }
-    singlePlacementGroup: false
+    singlePlacementGroup: true
     platformFaultDomainCount: 1
     virtualMachineProfile: {
       extensionProfile: {
@@ -359,6 +406,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
             name: 'healthExtention'
             properties: {
               autoUpgradeMinorVersion: true
+              enableAutomaticUpgrade: true
               publisher: 'Microsoft.ManagedServices'
               type: 'ApplicationHealthLinux'
               typeHandlerVersion: '1.0'
@@ -396,7 +444,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
       osProfile: {
         computerNamePrefix: vmScaleSetName
         adminUsername: adminUsername
-        // customData: 
+        customData: loadFileAsBase64('installscript.sh')
         linuxConfiguration: {
           disablePasswordAuthentication: true
           ssh: {
@@ -451,6 +499,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
     NSGVirtualNetworkWeb
     ApplicationGateway
   ]
+
 }
 
 resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {

@@ -25,23 +25,24 @@ var SubnetGatewayConfig = {
   subnetPrefixes: '10.20.20.128/26'
 }
 
-var NSGAppSSH = {
-  name: 'SSHInbound'
-  properties: {
-    direction: 'Inbound'
-    access: 'Allow'
-    protocol: 'Tcp'
-    sourcePortRange: '*'
-    destinationPortRange: '22'
-    sourceAddressPrefix: '*'
-    destinationAddressPrefix: '*'
-    priority: 100
-  }
-}
+// var NSGAppSSH = {
+//   name: 'SSHInbound'
+//   properties: {
+//     direction: 'Inbound'
+//     access: 'Allow'
+//     protocol: 'Tcp'
+//     sourcePortRange: '*'
+//     destinationPortRange: '22'
+//     sourceAddressPrefix: '*'
+//     destinationAddressPrefix: '*'
+//     priority: 100
+//   }
+// }
 
 var NSGAppHTTP = {
   name: 'HTTPInbound'
   properties: {
+    description: 'allow HTTP communication'
     direction: 'Inbound'
     access: 'Allow'
     protocol: 'Tcp'
@@ -49,7 +50,7 @@ var NSGAppHTTP = {
     destinationPortRange: '80'
     sourceAddressPrefix: '*'
     destinationAddressPrefix: '*'
-    priority: 110
+    priority: 100
 
   }
 }
@@ -57,6 +58,7 @@ var NSGAppHTTP = {
 var NSGManagRDP = {
   name: 'RDPInbound'
   properties: {
+    description: 'allow https'
     direction: 'Inbound'
     access: 'Allow'
     protocol: 'Tcp'
@@ -64,7 +66,7 @@ var NSGManagRDP = {
     destinationPortRange: '3389'
     sourceAddressPrefix: '*'
     destinationAddressPrefix: '*'
-    priority: 100
+    priority: 110
 
   }
 }
@@ -79,7 +81,7 @@ var NSGManagSSH = {
     destinationPortRange: '22'
     sourceAddressPrefix: '*'
     destinationAddressPrefix: '*'
-    priority: 110
+    priority: 120
 
   }
 }
@@ -89,20 +91,20 @@ resource networkSecurityGroupAppSubnet 'Microsoft.Network/networkSecurityGroups@
   location: location
   properties: {
     securityRules: [
-      {
-        name: NSGAppSSH.name
-        properties: {
-          direction: NSGAppSSH.properties.direction
-          access: NSGAppSSH.properties.access
-          protocol: NSGAppSSH.properties.protocol
-          sourcePortRange: NSGAppSSH.properties.sourcePortRange
-          destinationPortRange: NSGAppSSH.properties.destinationPortRange
-          sourceAddressPrefix: NSGAppSSH.properties.sourceAddressPrefix
-          destinationAddressPrefix: NSGAppSSH.properties.destinationAddressPrefix
-          priority: NSGAppSSH.properties.priority
+      // {
+      //   name: NSGAppSSH.name
+      //   properties: {
+      //     direction: NSGAppSSH.properties.direction
+      //     access: NSGAppSSH.properties.access
+      //     protocol: NSGAppSSH.properties.protocol
+      //     sourcePortRange: NSGAppSSH.properties.sourcePortRange
+      //     destinationPortRange: NSGAppSSH.properties.destinationPortRange
+      //     sourceAddressPrefix: NSGAppSSH.properties.sourceAddressPrefix
+      //     destinationAddressPrefix: NSGAppSSH.properties.destinationAddressPrefix
+      //     priority: NSGAppSSH.properties.priority
 
-        }
-      }
+      //   }
+      // }
       {
         name: NSGAppHTTP.name
         properties: {
@@ -118,6 +120,65 @@ resource networkSecurityGroupAppSubnet 'Microsoft.Network/networkSecurityGroups@
         }
 
       }
+      {
+        name: 'GatewayManager'
+        properties: {
+          description: 'Ports for application gateway'
+          access: 'Allow'
+          direction: 'Inbound'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '65200-65535'
+          sourceAddressPrefix: 'GatewayManager'
+          destinationAddressPrefix: '*'
+          priority: 130
+
+        }
+      }
+      {
+        name: 'HTTPOutbound'
+        properties: {
+          description: 'allow outbound HTTP'
+          protocol: 'Tcp'
+          sourcePortRange: '80'
+          destinationPortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+          access: 'Allow'
+          priority: 200
+          direction: 'Outbound'
+        }
+      }
+      {
+        name: 'HTTPSOutbound'
+        properties: {
+          description: 'outbound HTTPS'
+          access: 'Allow'
+          direction: 'Outbound'
+          protocol: 'Tcp'
+          sourcePortRange: '443'
+          destinationPortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+          priority: 210
+        }
+      }
+      {
+        name: 'InternetOutbound'
+        properties: {
+          description: 'allow internet'
+          access: 'Allow'
+          direction: 'Outbound'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: 'Internet'
+          priority: 220
+
+        }
+      }
+
     ]
   }
 }
@@ -185,9 +246,9 @@ resource vnetApp 'Microsoft.Network/virtualNetworks@2022-01-01' = {
         name: SubnetGatewayConfig.subnetName
         properties: {
           addressPrefix: SubnetGatewayConfig.subnetPrefixes
-          // networkSecurityGroup: {
-          //   id: networkSecurityGroupAppSubnet.id
-          // }
+          networkSecurityGroup: {
+            id: networkSecurityGroupAppSubnet.id
+          }
         }
       }
 

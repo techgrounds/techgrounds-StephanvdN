@@ -1,11 +1,13 @@
 #!/bin/bash
+ sudo apt-get update
+sudo apt install apache2 -y
 
-sudo apt update
-
-sudo apt install apache2
+ufw allow 'Apache'
 
 sudo systemctl start apache2
 
 sudo systemctl enable apache2
+
+sudo systemctl restart apache2 
 
 sudo systemctl status apache2
