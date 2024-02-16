@@ -90,5 +90,14 @@ module backupModule 'backup.bicep' = {
 
   }
 }
+@description('Deploy SQL')
+module sqlModule 'sql.bicep' = {
+  name: 'sqlDeployment'
+  params: {
+    location: location
+    vnetApp: networkModule.outputs.VnetWebName
+    networkSecurityGroupAppSubnet: networkModule.outputs.NSGVnetApp
+  }
+}
 
 // output vnetapp string = networkModule.outputs.vnetAppOutput

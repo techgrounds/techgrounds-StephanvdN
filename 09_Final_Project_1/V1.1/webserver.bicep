@@ -453,6 +453,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
       osProfile: {
         computerNamePrefix: vmScaleSetName
         adminUsername: adminUsername
+        adminPassword: 'Techgrounds'
         customData: loadFileAsBase64('installscript.sh')
         linuxConfiguration: {
           disablePasswordAuthentication: true
