@@ -25,19 +25,19 @@ var SubnetGatewayConfig = {
   subnetPrefixes: '10.20.20.128/26'
 }
 
-// var NSGAppSSH = {
-//   name: 'SSHInbound'
-//   properties: {
-//     direction: 'Inbound'
-//     access: 'Allow'
-//     protocol: 'Tcp'
-//     sourcePortRange: '*'
-//     destinationPortRange: '22'
-//     sourceAddressPrefix: '*'
-//     destinationAddressPrefix: '*'
-//     priority: 100
-//   }
-// }
+var NSGAppSSH = {
+  name: 'SSHInbound'
+  properties: {
+    direction: 'Inbound'
+    access: 'Allow'
+    protocol: 'Tcp'
+    sourcePortRange: '*'
+    destinationPortRange: '22'
+    sourceAddressPrefix: vnetmanagementconfig.subnetPrefixes
+    destinationAddressPrefix: '*'
+    priority: 100
+  }
+}
 
 var NSGAppHTTP = {
   name: 'HTTPInbound'
@@ -50,7 +50,7 @@ var NSGAppHTTP = {
     destinationPortRange: '80'
     sourceAddressPrefix: '*'
     destinationAddressPrefix: '*'
-    priority: 100
+    priority: 105
 
   }
 }
@@ -104,7 +104,24 @@ resource networkSecurityGroupAppSubnet 'Microsoft.Network/networkSecurityGroups@
       //     priority: NSGAppSSH.properties.priority
 
       //   }
-      // }
+      // 
+
+      {
+        name: 'SSHInbound'
+        properties: {
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '22'
+          sourceAddressPrefix: vnetmanagementconfig.subnetPrefixes
+          destinationAddressPrefix: '*'
+          priority: 100
+
+        }
+
+      }
+
       {
         name: NSGAppHTTP.name
         properties: {

@@ -1,4 +1,23 @@
-# Log [09-02-2024]
+# Log [19-02-2024]
+
+
+## Dagverslag (1 zin)
+
+vandaag heb ik gewerkt aan de presentatie en gestart met mijn code op te schonen.
+
+
+## Obstakels
+
+
+## Oplossingen
+
+
+## Learnings
+
+
+---
+
+# Log [20-02-2024]
 
 
 ## Dagverslag (1 zin)
@@ -17,7 +36,7 @@ vandaag heb ik gewerkt aan de presentatie
 
 ---
 
-# Log [09-02-2024]
+# Log [21-02-2024]
 
 
 ## Dagverslag (1 zin)
@@ -36,12 +55,12 @@ vandaag heb ik gewerkt aan de presentatie
 
 ---
 
-# Log [09-02-2024]
+# Log [22-02-2024]
 
 
 ## Dagverslag (1 zin)
 
-vandaag heb ik gewerkt aan de presentatie
+vandaag was de eindpresentatie 
 
 
 ## Obstakels
@@ -55,31 +74,12 @@ vandaag heb ik gewerkt aan de presentatie
 
 ---
 
-# Log [09-02-2024]
+# Log [23-02-2024]
 
 
 ## Dagverslag (1 zin)
 
-vandaag heb ik gewerkt aan de presentatie
-
-
-## Obstakels
-
-
-## Oplossingen
-
-
-## Learnings
-
-
----
-
-# Log [09-02-2024]
-
-
-## Dagverslag (1 zin)
-
-vandaag heb ik gewerkt aan de presentatie
+vandaag is de diploma uitreiking
 
 
 ## Obstakels

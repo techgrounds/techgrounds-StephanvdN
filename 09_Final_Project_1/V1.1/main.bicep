@@ -34,8 +34,6 @@ module webserverModule 'webserver.bicep' = {
     location: location
     // VmWebserver: 'Vm-webserver'
     adminUsername: 'azureuser-techgroundsproject'
-    NetworkInterfaceWeb: 'NetworkInterfaceWebServer'
-    subnetApp: networkModule.outputs.subnetVnetApp
     publicIPWebServerName: 'PublicIPWebserver'
     vnetApp: networkModule.outputs.VnetWebName
     networkSecurityGroupAppSubnet: networkModule.outputs.NSGVnetApp
@@ -96,7 +94,6 @@ module sqlModule 'sql.bicep' = {
   params: {
     location: location
     vnetApp: networkModule.outputs.VnetWebName
-    networkSecurityGroupAppSubnet: networkModule.outputs.NSGVnetApp
   }
 }
 

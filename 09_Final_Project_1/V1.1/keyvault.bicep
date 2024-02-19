@@ -8,8 +8,10 @@ param UsernameManagmentServer string
 @description('Contains the password of the managementserver')
 param PasswordManagementServer string
 
+param keyVaultName string = 'KeyVault1${uniqueString(resourceGroup().id)}'
+
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: 'KeyVault1${uniqueString(resourceGroup().id)}'
+  name: keyVaultName
   location: location
   properties: {
     networkAcls: {
@@ -71,7 +73,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enabledForDeployment: false
     enabledForDiskEncryption: true
     enableSoftDelete: true
-    vaultUri: 'https://keyvaultsteph.vault.azure.net/'
+    vaultUri: 'https://${keyVaultName}.vault.azure.net/'
     provisioningState: 'Succeeded'
     publicNetworkAccess: 'Enabled'
     softDeleteRetentionInDays: 7

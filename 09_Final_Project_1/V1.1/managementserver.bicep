@@ -86,6 +86,7 @@ resource networkInterfaceManagementServer 'Microsoft.Network/networkInterfaces@2
         id: NetworkInterfaceManagement
         type: NetworkInterfaceConfig.type
         properties: {
+
           privateIPAllocationMethod: NetworkInterfaceConfig.properties.privateIPAllocationMethod
           publicIPAddress: {
             id: publicIpAddressManagementServer.id

@@ -1,39 +1,15 @@
 param location string
-// param VmWebserver string
 param adminUsername string
-param NetworkInterfaceWeb string
-param subnetApp string
 param publicIPWebServerName string
 param dnsLabelPrefix string = toLower('${VmScaleSetWebserver}-${uniqueString(resourceGroup().id)}')
 param VmScaleSetWebserver string = 'VmScaleSetWebserver'
 param ApplicationGatewayName string = 'ApplicationGatewayWeb'
 param vnetApp string
 param networkSecurityGroupAppSubnet string
-
-param ssl_cert string = loadFileAsBase64('Keys/myCA.cer')
-param gatewaySubnetName string = 'gateway_Subnet'
-// param gatewaySubnetID string = resourceId('Microsoft.Network/virtualNetworks/subnets/', vnetApp, gatewaySubnetName)
 param instanceCount int = 3
 
 var VmWebserverZone = {
   zone: '2'
-}
-
-var VmSizeVmWebserver = {
-  vmSize: 'Standard_DS1_v2'
-}
-
-var StorageProfileVMWebserver = {
-  publisher: 'canonical'
-  offer: '0001-com-ubuntu-server-focal'
-  sku: '20_04-lts-gen2'
-  version: 'latest'
-}
-var OsDiskVMWebserver = {
-  osType: 'Linux'
-  createOption: 'FromImage'
-  caching: 'ReadWrite'
-  deleteOption: 'Delete'
 }
 
 var linuxConfig = {
@@ -53,20 +29,6 @@ var IPAddressConfig = {
     idleTimeoutInMinutes: 4
   }
 }
-
-var NetworkInterfaceConfig = {
-  name: 'ipconfig'
-  type: 'Microsoft.Network/networkInterfaces/ipConfigurations'
-  properties: {
-    privateIPAllocationMethod: 'Dynamic'
-    primary: true
-    privateIPAddressVersion: 'IPv4'
-
-  }
-
-}
-
-// var BackAddressPoolID = resourceId('Microsoft.Network/applicationGateways/backendAddressPools', ApplicationGatewayName, 'myBackendPool')
 
 var vmScaleSetName = toLower(substring('${VmScaleSetWebserver}${uniqueString(resourceGroup().id)}', 0, 9))
 var backEndPoolName = '${vmScaleSetName}BackEndPool'
@@ -100,35 +62,6 @@ resource publicIpAddressWebServer 'Microsoft.Network/publicIPAddresses@2022-01-0
 
 }
 
-// resource networkInterfaceWebServer 'Microsoft.Network/networkInterfaces@2022-01-01' = {
-//   name: NetworkInterfaceWeb
-//   location: location
-//   properties: {
-//     ipConfigurations: [
-//       {
-//         name: NetworkInterfaceConfig.name
-//         id: NetworkInterfaceWeb
-//         type: NetworkInterfaceConfig.type
-//         properties: {
-//           privateIPAllocationMethod: NetworkInterfaceConfig.properties.privateIPAllocationMethod
-//           publicIPAddress: {
-//             id: publicIpAddressWebServer.id
-//             properties: {
-//               deleteOption: 'Delete'
-//             }
-//           }
-//           subnet: {
-//             id: VirtualNetworkWeb.properties.subnets[1].id
-//           }
-//           primary: NetworkInterfaceConfig.properties.primary
-//           privateIPAddressVersion: NetworkInterfaceConfig.properties.privateIPAddressVersion
-//         }
-//       }
-//     ]
-
-//   }
-// }
-
 resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' = {
   name: ApplicationGatewayName
   location: location
@@ -139,6 +72,16 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
       capacity: 3
     }
 
+    sslPolicy: {
+      policyType: 'Custom'
+      minProtocolVersion: 'TLSv1_2'
+      cipherSuites: [
+        'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+        'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+        'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+        'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+      ]
+    }
     sslCertificates: [
       {
         name: 'mycert'
@@ -149,13 +92,6 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
       }
     ]
 
-    // trustedClientCertificates: [
-    //   { name: 'test-cert'
-    //     properties: {
-    //       data: ssl_cert
-    //     }
-    //   }
-    // ]
     backendAddressPools: [
       {
         name: backEndPoolName
@@ -205,15 +141,7 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
         }
 
       }
-      // {
-      //   // name: 'FrontendPrivateIP'
-      //   // properties: {
-      //   //   privateIPAllocationMethod: 'Dynamic'
-      //   //   subnet: {
-      //   //     id: resourceId('Microsoft.Network/virtualNetworks/subnets/', subnetApp, gatewaySubnetName)
-      //   //   }
-      //   // }
-      // }
+
     ]
     frontendPorts: [
       {
@@ -316,17 +244,17 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
         properties: {
           host: '127.0.0.1'
           interval: 30
-          path: '/health'
+          path: '/'
           port: 443
           protocol: 'Https'
           timeout: 30
           unhealthyThreshold: 3
           pickHostNameFromBackendHttpSettings: false
-          // match: {
-          //   statusCodes: [
-          //     '200-399'
-          //   ]
-          // }
+          match: {
+            statusCodes: [
+              '399'
+            ]
+          }
         }
       }
 
@@ -351,11 +279,6 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
 
       }
     ]
-    // enableHttp2: true
-    // autoscaleConfiguration: {
-    //   minCapacity: 1
-    //   maxCapacity: 3
-    // }
 
     redirectConfigurations: [
       {
@@ -371,15 +294,10 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
       }
     ]
 
-    // enableHttp2: true
-    // autoscaleConfiguration: {
-    //   minCapacity: 1
-    //   maxCapacity: 3
-    // }
   }
   dependsOn: [
     VirtualNetworkWeb
-    // publicIpAddressWebServer
+
     NSGVirtualNetworkWeb
 
   ]
@@ -435,9 +353,6 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
           managedDisk: {
             storageAccountType: 'StandardSSD_LRS'
           }
-          // osType: OsDiskVMWebserver.osType
-          // createOption: OsDiskVMWebserver.createOption
-          // caching: OsDiskVMWebserver.caching
 
         }
         imageReference: {
@@ -447,9 +362,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
           version: 'latest'
         }
       }
-      // securityProfile: {
-      //   encryptionAtHost: true
-      // }
+
       osProfile: {
         computerNamePrefix: vmScaleSetName
         adminUsername: adminUsername
@@ -480,7 +393,6 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
                   properties: {
                     subnet: {
                       id: VirtualNetworkWeb.properties.subnets[0].id
-                      // resourceId('Microsoft.Network/virtualNetworks/subnets/', vnetApp, 'GatewaySubnetTest')
 
                     }
                     applicationGatewayBackendAddressPools: [
@@ -493,7 +405,6 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
                   }
                 }
               ]
-              // networkSecurityGroup: NSGVirtualNetworkWeb
 
             }
           }
@@ -575,89 +486,5 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
     } }
 }
 
-// resource VirtualMachineWebserver 'Microsoft.Compute/virtualMachines@2022-03-01' = {
-//   name: VmWebserver
-//   location: location
-//   zones: [
-//     VmWebserverZone.zone
-//     //'2'
-//   ]
-//   properties: {
-//     hardwareProfile: {
-//       vmSize: VmSizeVmWebserver.vmSize
-//     }
-//     storageProfile: {
-//       imageReference: {
-//         publisher: StorageProfileVMWebserver.publisher
-//         offer: StorageProfileVMWebserver.offer
-//         sku: StorageProfileVMWebserver.sku
-//         version: StorageProfileVMWebserver.version
-//       }
-//       osDisk: {
-//         osType: OsDiskVMWebserver.osType
-//         createOption: OsDiskVMWebserver.createOption
-//         caching: OsDiskVMWebserver.caching
-
-//         deleteOption: OsDiskVMWebserver.deleteOption
-//       }
-//       dataDisks: []
-//     }
-//     osProfile: {
-//       computerName: VmWebserver
-//       adminUsername: adminUsername
-
-//       linuxConfiguration: {
-//         disablePasswordAuthentication: linuxConfig.disablePasswordAuthentication
-//         ssh: {
-//           publicKeys: [
-//             {
-//               path: linuxConfig.path
-//               keyData: linuxConfig.keyData }
-//           ]
-//         }
-//       }
-
-//     }
-//     networkProfile: {
-//       networkInterfaces: [
-//         {
-//           id: networkInterfaceWebServer.id
-//           properties: {
-//             deleteOption: 'Delete'
-//           }
-//         }
-//       ]
-//     }
-//   }
-// }
-
-// resource deploymenscript 'Microsoft.Compute/virtualMachines/runCommands@2022-03-01' = {
-//   parent: VirtualMachineWebserver
-//   name: 'installScript'
-//   location: location
-//   properties: {
-//     source: {
-//       script: '''
-//       #!/bin/bash
-
-// sudo apt-get update
-// sudo apt install apache2 -y
-
-// ufw allow 'Apache'
-
-// sudo systemctl start apache2
-
-// sudo systemctl enable apache2
-
-// sudo systemctl restart apache2 
-
-// sudo systemctl status apache2
-//       '''
-//     }
-//   }
-// }
-
 output linuxconfigPath string = linuxConfig.path
 output linuxconfigKeyData string = linuxConfig.keyData
-
-// output VmWebserverOutput string = VirtualMachineWebserver.name
