@@ -81,7 +81,7 @@ vandaag is het me eindelijk gelukt om de Application Gateway, Scale Set en Scale
 
 ## Dagverslag (1 zin)
 
-vandaag heb ik gewerkt aan de presentatie
+Application Gateway en Scale Set blijken niet goed te zijn, geeft een foutmelding aan in de backend
 
 
 ## Obstakels

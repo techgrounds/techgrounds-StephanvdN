@@ -1,7 +1,6 @@
 param location string
 param adminUsername string
 param publicIPWebServerName string
-param dnsLabelPrefix string = toLower('${VmScaleSetWebserver}-${uniqueString(resourceGroup().id)}')
 param VmScaleSetWebserver string = 'VmScaleSetWebserver'
 param ApplicationGatewayName string = 'ApplicationGatewayWeb'
 param vnetApp string
@@ -44,22 +43,11 @@ resource NSGVirtualNetworkWeb 'Microsoft.Network/networkSecurityGroups@2022-01-0
 resource publicIpAddressWebServer 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   name: publicIPWebServerName
   location: location
-  sku: {
-    name: IPAddressConfig.sku.name
-    tier: IPAddressConfig.sku.tier
-  }
+  sku: IPAddressConfig.sku
   zones: [
     VmWebserverZone.zone
   ]
-  properties: {
-    publicIPAddressVersion: IPAddressConfig.properties.publicIPAddressVersion
-    publicIPAllocationMethod: IPAddressConfig.properties.publicIPAllocationMethod
-    idleTimeoutInMinutes: IPAddressConfig.properties.idleTimeoutInMinutes
-    dnsSettings: {
-      domainNameLabel: dnsLabelPrefix
-    }
-  }
-
+  properties: IPAddressConfig.properties
 }
 
 resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' = {
@@ -293,18 +281,14 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
         }
       }
     ]
-
   }
   dependsOn: [
     VirtualNetworkWeb
-
     NSGVirtualNetworkWeb
-
   ]
 }
 
 resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
-
   name: VmScaleSetWebserver
   location: location
   sku: {
@@ -419,9 +403,7 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
   dependsOn: [
     NSGVirtualNetworkWeb
     ApplicationGateway
-
   ]
-
 }
 
 resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {

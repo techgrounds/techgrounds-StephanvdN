@@ -22,7 +22,7 @@ vandaag heb ik gewerkt aan de presentatie en gestart met mijn code op te schonen
 
 ## Dagverslag (1 zin)
 
-vandaag heb ik gewerkt aan de presentatie
+vandaag heb ik gewerkt aan sollicitaties en mijn code op te schonen
 
 
 ## Obstakels

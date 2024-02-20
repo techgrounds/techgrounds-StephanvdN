@@ -25,20 +25,6 @@ var SubnetGatewayConfig = {
   subnetPrefixes: '10.20.20.128/26'
 }
 
-var NSGAppSSH = {
-  name: 'SSHInbound'
-  properties: {
-    direction: 'Inbound'
-    access: 'Allow'
-    protocol: 'Tcp'
-    sourcePortRange: '*'
-    destinationPortRange: '22'
-    sourceAddressPrefix: vnetmanagementconfig.subnetPrefixes
-    destinationAddressPrefix: '*'
-    priority: 100
-  }
-}
-
 var NSGAppHTTP = {
   name: 'HTTPInbound'
   properties: {
@@ -91,21 +77,6 @@ resource networkSecurityGroupAppSubnet 'Microsoft.Network/networkSecurityGroups@
   location: location
   properties: {
     securityRules: [
-      // {
-      //   name: NSGAppSSH.name
-      //   properties: {
-      //     direction: NSGAppSSH.properties.direction
-      //     access: NSGAppSSH.properties.access
-      //     protocol: NSGAppSSH.properties.protocol
-      //     sourcePortRange: NSGAppSSH.properties.sourcePortRange
-      //     destinationPortRange: NSGAppSSH.properties.destinationPortRange
-      //     sourceAddressPrefix: NSGAppSSH.properties.sourceAddressPrefix
-      //     destinationAddressPrefix: NSGAppSSH.properties.destinationAddressPrefix
-      //     priority: NSGAppSSH.properties.priority
-
-      //   }
-      // 
-
       {
         name: 'SSHInbound'
         properties: {
@@ -124,18 +95,7 @@ resource networkSecurityGroupAppSubnet 'Microsoft.Network/networkSecurityGroups@
 
       {
         name: NSGAppHTTP.name
-        properties: {
-          direction: NSGAppHTTP.properties.direction
-          access: NSGAppHTTP.properties.access
-          protocol: NSGAppHTTP.properties.protocol
-          sourcePortRange: NSGAppHTTP.properties.sourcePortRange
-          destinationPortRange: NSGAppHTTP.properties.destinationAddressPrefix
-          sourceAddressPrefix: NSGAppHTTP.properties.sourceAddressPrefix
-          destinationAddressPrefix: NSGAppHTTP.properties.destinationAddressPrefix
-          priority: NSGAppHTTP.properties.priority
-
-        }
-
+        properties: NSGAppHTTP.properties
       }
       {
         name: 'GatewayManager'
@@ -207,32 +167,11 @@ resource networkSecurityGroupManagementSubnet 'Microsoft.Network/networkSecurity
     securityRules: [
       {
         name: NSGManagRDP.name
-        properties: {
-          direction: NSGManagRDP.properties.direction
-          access: NSGManagRDP.properties.access
-          protocol: NSGManagRDP.properties.protocol
-          sourcePortRange: NSGManagRDP.properties.sourcePortRange
-          destinationPortRange: NSGManagRDP.properties.destinationPortRange
-          sourceAddressPrefix: NSGManagRDP.properties.sourceAddressPrefix
-          destinationAddressPrefix: NSGManagRDP.properties.destinationAddressPrefix
-          priority: NSGManagRDP.properties.priority
-
-        }
-
+        properties: NSGManagRDP.properties
       }
       {
         name: NSGManagSSH.name
-        properties: {
-          direction: NSGManagSSH.properties.direction
-          access: NSGManagSSH.properties.access
-          protocol: NSGManagSSH.properties.protocol
-          sourcePortRange: NSGManagSSH.properties.sourcePortRange
-          destinationPortRange: NSGManagSSH.properties.destinationPortRange
-          sourceAddressPrefix: NSGManagSSH.properties.sourceAddressPrefix
-          destinationAddressPrefix: NSGManagSSH.properties.destinationAddressPrefix
-          priority: NSGManagSSH.properties.priority
-
-        }
+        properties: NSGManagSSH.properties
       }
     ]
   }
@@ -255,9 +194,7 @@ resource vnetApp 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           networkSecurityGroup: {
             id: networkSecurityGroupAppSubnet.id
           }
-
         }
-
       }
       {
         name: SubnetGatewayConfig.subnetName
@@ -268,7 +205,6 @@ resource vnetApp 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           }
         }
       }
-
     ]
   }
 
@@ -290,12 +226,9 @@ resource vnetManagement 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           addressPrefix: vnetmanagementconfig.subnetPrefixes
           networkSecurityGroup: {
             id: networkSecurityGroupManagementSubnet.id }
-
         }
-
       }
     ]
-
   }
 }
 
@@ -324,12 +257,10 @@ resource VnetPeering2 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@
     allowForwardedTraffic: true
     allowGatewayTransit: false
     useRemoteGateways: false
-
   }
 }
 
 output subnetVnetApp string = vnetApp.properties.subnets[0].id
 output subnetVnetManag string = vnetManagement.properties.subnets[0].id
 output NSGVnetApp string = networkSecurityGroupAppSubnet.name
-// output GatewaySubnet string = vnetApp.properties.subnets[1].id
 output VnetWebName string = vnetApp.name

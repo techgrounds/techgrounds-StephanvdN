@@ -32,7 +32,6 @@ module webserverModule 'webserver.bicep' = {
   name: 'webserverDeployment'
   params: {
     location: location
-    // VmWebserver: 'Vm-webserver'
     adminUsername: 'azureuser-techgroundsproject'
     publicIPWebServerName: 'PublicIPWebserver'
     vnetApp: networkModule.outputs.VnetWebName
@@ -73,7 +72,6 @@ module keyvaultModule 'keyvault.bicep' = {
     location: location
     PasswordManagementServer: PasswordManagement
     UsernameManagmentServer: UsernameManagement
-
   }
 }
 
@@ -84,8 +82,6 @@ module backupModule 'backup.bicep' = {
     VaultName: 'recoveryVaultName'
     location: location
     VmManagmentserverName: managementseverModule.outputs.VmManagementserverOutput
-    // VmWebserverName: webserverModule.outputs.VmWebserverOutput
-
   }
 }
 @description('Deploy SQL')
@@ -96,5 +92,3 @@ module sqlModule 'sql.bicep' = {
     vnetApp: networkModule.outputs.VnetWebName
   }
 }
-
-// output vnetapp string = networkModule.outputs.vnetAppOutput

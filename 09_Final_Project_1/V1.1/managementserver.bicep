@@ -117,18 +117,8 @@ resource VirtualMachineManagementServer 'Microsoft.Compute/virtualMachines@2022-
       vmSize: VmSizeVmManagementserver.vmSize
     }
     storageProfile: {
-      imageReference: {
-        publisher: StorageProfileVMManagementserver.publisher
-        offer: StorageProfileVMManagementserver.offer
-        sku: StorageProfileVMManagementserver.sku
-        version: StorageProfileVMManagementserver.version
-      }
-      osDisk: {
-        osType: OsDiskVMManagementserver.osType
-        createOption: OsDiskVMManagementserver.createOption
-        caching: OsDiskVMManagementserver.caching
-        deleteOption: OsDiskVMManagementserver.deleteOption
-      }
+      imageReference: StorageProfileVMManagementserver
+      osDisk: OsDiskVMManagementserver
       dataDisks: []
     }
     osProfile: {
