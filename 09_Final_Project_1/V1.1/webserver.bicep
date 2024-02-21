@@ -1,6 +1,7 @@
 param location string
 param adminUsername string
 param publicIPWebServerName string
+param dnsLabelPrefix string = toLower('${VmScaleSetWebserver}-${uniqueString(resourceGroup().id)}')
 param VmScaleSetWebserver string = 'VmScaleSetWebserver'
 param ApplicationGatewayName string = 'ApplicationGatewayWeb'
 param vnetApp string
@@ -43,11 +44,22 @@ resource NSGVirtualNetworkWeb 'Microsoft.Network/networkSecurityGroups@2022-01-0
 resource publicIpAddressWebServer 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   name: publicIPWebServerName
   location: location
-  sku: IPAddressConfig.sku
+  sku: {
+    name: IPAddressConfig.sku.name
+    tier: IPAddressConfig.sku.tier
+  }
   zones: [
     VmWebserverZone.zone
   ]
-  properties: IPAddressConfig.properties
+  properties: {
+    publicIPAddressVersion: IPAddressConfig.properties.publicIPAddressVersion
+    publicIPAllocationMethod: IPAddressConfig.properties.publicIPAllocationMethod
+    idleTimeoutInMinutes: IPAddressConfig.properties.idleTimeoutInMinutes
+    dnsSettings: {
+      domainNameLabel: dnsLabelPrefix
+    }
+  }
+
 }
 
 resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' = {
@@ -281,14 +293,18 @@ resource ApplicationGateway 'Microsoft.Network/applicationGateways@2022-01-01' =
         }
       }
     ]
+
   }
   dependsOn: [
     VirtualNetworkWeb
+
     NSGVirtualNetworkWeb
+
   ]
 }
 
 resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
+
   name: VmScaleSetWebserver
   location: location
   sku: {
@@ -403,14 +419,19 @@ resource VirtualMachineScaleSetWebserver 'Microsoft.Compute/virtualMachineScaleS
   dependsOn: [
     NSGVirtualNetworkWeb
     ApplicationGateway
+
   ]
+
 }
 
 resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
+
   name: 'autoscaler'
   location: location
   properties: {
+
     targetResourceUri: VirtualMachineScaleSetWebserver.id
+
     enabled: true
     profiles: [
       {
@@ -427,15 +448,18 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
               timeGrain: 'PT1M'
               statistic: 'Average'
               timeAggregation: 'Average'
-              metricResourceUri: VirtualMachineScaleSetWebserver.id
-              timeWindow: 'PT10M'
-              threshold: 50
-              metricName: 'Percentage CPU'
+              metricResourceUri: ApplicationGateway.id
+              timeWindow: 'PT1M'
+              threshold: 75000
+              metricName: 'Throughput'
+              metricNamespace: 'microsoft.network/applicationgateways'
+              dividePerInstance: false
+
             }
             scaleAction: {
               type: 'ChangeCount'
               direction: 'Increase'
-              cooldown: 'PT5M'
+              cooldown: 'PT1M'
               value: '1'
             }
 
@@ -446,10 +470,54 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
               timeGrain: 'PT1M'
               statistic: 'Average'
               timeAggregation: 'Average'
+              metricResourceUri: ApplicationGateway.id
+              timeWindow: 'PT1M'
+              threshold: 20000
+              metricName: 'Throughput'
+              metricNamespace: 'microsoft.network/applicationgateways'
+              dividePerInstance: false
+
+            }
+            scaleAction: {
+              type: 'ChangeCount'
+              direction: 'Decrease'
+              cooldown: 'PT1M'
+              value: '1'
+            }
+          }
+          // {
+          //   metricTrigger: {
+          //     operator: 'GreaterThan'
+          //     timeGrain: 'PT1M'
+          //     statistic: 'Average'
+          //     timeAggregation: 'Average'
+          //     metricResourceUri: VirtualMachineScaleSetWebserver.id
+          //     timeWindow: 'PT10M'
+          //     threshold: 80
+          //     metricName: 'Percentage CPU'
+          //     // metricNamespace: 'Standard metrics'
+          //     dividePerInstance: false
+          //   }
+          //   scaleAction: {
+          //     type: 'ChangeCount'
+          //     direction: 'Increase'
+          //     cooldown: 'PT5M'
+          //     value: '1'
+          //   }
+
+          // }
+          {
+            metricTrigger: {
+              operator: 'LessThan'
+              timeGrain: 'PT1M'
+              statistic: 'Average'
+              timeAggregation: 'Average'
               metricResourceUri: VirtualMachineScaleSetWebserver.id
               timeWindow: 'PT5M'
               threshold: 30
               metricName: 'Percentage CPU'
+              // metricNamespace: 'Standard metrics'
+              dividePerInstance: false
             }
             scaleAction: {
               type: 'ChangeCount'
@@ -466,6 +534,7 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
       scaleMode: 'Disabled'
       scaleLookAheadTime: 'PT14M'
     } }
+
 }
 
 output linuxconfigPath string = linuxConfig.path
