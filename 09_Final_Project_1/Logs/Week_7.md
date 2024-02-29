@@ -41,7 +41,7 @@ vandaag heb ik gewerkt aan sollicitaties en mijn code op te schonen
 
 ## Dagverslag (1 zin)
 
-vandaag heb ik gewerkt aan de presentatie
+vandaag heb ik gewerkt aan de instructies voor de klant en presentatie
 
 
 ## Obstakels
